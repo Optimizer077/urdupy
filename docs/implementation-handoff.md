@@ -299,3 +299,33 @@ publication or distribution rename occurred. From the checkout a user can run
 `python -m pip install ".[ai]"`. Registry-only `pip install urdupy` is not the
 published command for this local project. [Installation](install.md) contains
 tested local/wheel and CPU/CUDA commands.
+
+## Public source repository — URD-030 (2026-10-15)
+
+The maintainer explicitly requested a public repository and selected the local
+GitHub account **Optimizer077**. Source is now published at
+[Optimizer077/urdupy](https://github.com/Optimizer077/urdupy), with `main` as the
+default branch and local `origin/main` tracking configured. The initial source
+commit is `841399b5ad6f39350ca1d16bcd9270e617e37539` (128 files). Anonymous GitHub
+API requests verified public visibility, the README and the remote main SHA;
+`git ls-remote --heads origin main` matched the local commit independently.
+
+Fresh pre-publication checks on CPython 3.13.13 / Windows:
+
+- `python -X utf8 -m unittest discover -s tests -q`: **162 PASS, zero skips**.
+- `python -X utf8 examples/verify_examples.py`: **five pairs PASS**.
+- Upload inventory: no secret-pattern findings or credential filenames; no file
+  larger than 1 MB. Existing ignore rules exclude local environments, runtimes,
+  datasets, checkpoints, generated training output and build artifacts.
+
+An anonymous shallow clone into an ignored `.verification/public-clone-*`
+directory independently passed the same 162 tests and five example pairs,
+verifying that the uploaded source is complete and works after Git checkout.
+
+The [first hosted CI run](https://github.com/Optimizer077/urdupy/actions/runs/38685274655)
+is in progress. Its result remains pending; this is
+separate from the local passing baseline. README now includes clone/install
+instructions and a link to actual workflow results. No implementation, language,
+dependency, PyPI publication, release or tag changes were made. Earlier statements
+that no source push occurred describe their historical sessions. Next: inspect
+hosted CI, retaining the remaining package-ownership and community gates.

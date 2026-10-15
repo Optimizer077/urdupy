@@ -878,7 +878,7 @@ Milestones are sequential at the integration level. Agents may research future w
 |---|---|
 | Project | UrduPy |
 | Current documented phase | **All local M0-M6 engineering gates complete**; external publication/hosted/community gates separate; docs/implementation-handoff.md |
-| First public release | **NOT PUBLISHED**; local 0.1.0a1 alpha artifacts, external approval/ownership gates remain |
+| First public release | Source public at [Optimizer077/urdupy](https://github.com/Optimizer077/urdupy); package **NOT PUBLISHED to PyPI**; local 0.1.0a1 alpha artifacts |
 | Latest stable CPython support | Core PASS on 3.12.13, 3.13.13, 3.14.6 and latest stable 3.15.0; Windows AMD64; metadata >=3.12,<3.16 |
 | Official PyPI project name | **UNVERIFIED** ownership/registerability; candidate endpoints returned HTTP 404 |
 | Core quick-test result | **159/159 PASS, zero skips on all four production minors**; preserved 57-test M0 baseline; current handoff |
@@ -911,15 +911,15 @@ Milestones are sequential at the integration level. Agents may research future w
 | URD-019 | P2 | M4 | Evaluate optional REPL and editor support | DONE | Integrator / packaging agent | Tested multiline REPL, session-isolated source history; editor JSON syntax/config validated, visual editor unverified |
 | URD-020 | P0 | M5 | Confirm distribution name and package metadata | IN_REVIEW | Packaging agent / maintainer | Local urdupy-design-lab metadata validated; public registerability/ownership remains external OPEN gate |
 | URD-021 | P0 | M5 | Build and install wheel/sdist in clean env | DONE | Integrator / independent artifact review | Isolated wheel/sdist build; wheel clean-installed on all four minors and sdist on 3.15; each 159 core tests + pip check + installed CLI; dist/verification.json |
-| URD-022 | P0 | M5 | GitHub CI across supported Python versions | IN_REVIEW | Packaging agent / maintainer | 12 configured jobs (four minors x Windows/Linux/macOS); no remote run/hosted result invented |
+| URD-022 | P0 | M5 | GitHub CI across supported Python versions | IN_REVIEW | Packaging agent / maintainer | 12 configured jobs; first [hosted run](https://github.com/Optimizer077/urdupy/actions/runs/38685274655) in progress after public source push; outcome pending |
 | URD-023 | P1 | M5 | Release docs, changelog, security, license | DONE | Packaging agent / integrator | License/security/contributing/tutorial/reference/CLI/release/changelog and current handoff |
-| URD-024 | P0 | M5 | Public release readiness and approval | BLOCKED | Maintainer | Explicit approval + verified gates |
+| URD-024 | P0 | M5 | Public release readiness and approval | BLOCKED | Maintainer | PyPI/release approval + verified gates remain; GitHub source publication separately authorized and completed in URD-030 |
 | URD-025 | P1 | M0-M5 | Define Unicode/RTL testing guidance | DONE | Team | Unicode/RTL guidance and textual/span/filename fixtures on four Windows minors; other platform/editor rendering explicitly unverified |
 | URD-026 | P1 | M1-M5 | Track compatibility changes and deprecations | DONE | Team | Versioned 1.0-local technical contract, immutable lexicon, ADR/migration policy, preserved M0 API and changelog |
 | URD-027 | P1 | M3 | Train and save a nonlinear neural network in UrduPy | DONE | Integrator | 600-epoch CPU XOR: 1021/1024 held-out correct; exact Python/state reload; 2 focused tests and 11/11 full optional suite; results-training.json |
 | URD-028 | P1 | M3 | Urdu ResNet with actual STL-10 training and Urdu graphs | DONE | Integrator + model/data/plot agents | Full-width96px ResNet18, 50epochs RTX5060Ti; epoch44 bestval77%, test6188/8000=77.35%; 22 offline tests + independent raw-label/hash audit PASS; four Urdu PNG/SVG pairs visually reviewed |
 | URD-029 | P1 | M5 | Pip dependency extras and verified local installation | DONE | Integrator | science/ai extras; actual pip AI/science/core installs; 162core tests on4clean wheel minors +315sdist; 11AI tests; CUDA retained; dist/pip-extras evidence; no publication |
-| URD-030 | P1 | M5 | Publish the source as a public GitHub repository | IN_PROGRESS | Integrator | Maintainer explicitly authorizes public push to Optimizer077/urdupy; fresh 162-test baseline and five example pairs PASS; upload inventory reviewed |
+| URD-030 | P1 | M5 | Publish the source as a public GitHub repository | DONE | Integrator | [Optimizer077/urdupy](https://github.com/Optimizer077/urdupy), public visibility and anonymous clone verified; initial main 841399b; cloned 162 core tests and five example pairs PASS; hosted CI in progress |
 
 ### 12.3 Active tasks / ownership
 
@@ -934,7 +934,7 @@ Milestones are sequential at the integration level. Agents may research future w
 | URD-007/009/010/018/019 | Integrator | 2026-10-15 | Runtime/importer/CLI/REPL and focused tests, ADR-013 | Execution/imports/diagnostics/state | DONE / frozen |
 | URD-012..017 | language_design (AI role) | 2026-10-15 | Optional compatibility suites, paired science examples, constraints and evidence | Offline real-library integration | DONE / frozen |
 | URD-020..023/026 | platform_research (packaging role) | 2026-10-15 | Metadata/manifest/CI/editor/license/docs, ADR-012 | Local packaging/technical contract; external gates separate | DONE drafts; integration verification |
-| URD-030 | Integrator / main | 2026-10-15 | README.md, AGENTS.md, publication handoff and Git configuration | Public GitHub source repository; preserve language/runtime and existing ignored local artifacts | IN_PROGRESS |
+| URD-030 | Integrator / main | 2026-10-15 | README.md, AGENTS.md, publication handoff and Git configuration | Public GitHub source repository; preserve language/runtime and existing ignored local artifacts | DONE |
 
 Only one agent should **directly edit the canonical keyword registry at a time**. Coordinate merge timing for importer/translator interfaces. Parallel agents should prefer separate tests/docs or clearly partitioned files.
 
@@ -947,6 +947,7 @@ Only one agent should **directly edit the canonical keyword registry at a time**
 | 2026-10-15 | URD-002 | Official source links and both research probes | Research notes and ADR-006/007/008/009 | Stable-version research is separate from tested support; name/package gates OPEN |
 | 2026-10-15 | URD-003 | 48 focused tests; integrated 57/57 on both local minors | Experimental compiler, regression suite, ADR-005 | Independent review fixed relative-only import gap; production compiler remains M1 |
 | 2026-10-15 | URD-004 | 5/5 paired examples on both local minors | Grammar/function spec, naming workshop, ADR-004, examples/verifier | Disputed spellings provisional; no human survey claimed |
+| 2026-10-15 | URD-030 | Public GitHub repository, matching remote main 841399b, anonymous clone; cloned 162 core tests and five pairs PASS | README.md, AGENTS.md, implementation handoff, initial source commit | Source publication only; hosted CI in progress and PyPI remains unpublished |
 
 ### 12.5 Open blockers and risks
 
@@ -1161,6 +1162,7 @@ Use this table to record **actual runs**, not hopes. Add rows with exact Python/
 | 2026-10-15 | 3.13.13 default Anaconda | Windows AMD64 CPU | Local source | numpy 2.5.2; Pillow 12.3.0; torch 2.14.1+cpu | Optional runner; results-default.json | PARTIAL (5 pass / 4 skip) | Missing cv2/torchvision/Transformers; not conflated with isolated pass |
 | 2026-10-15 | 3.13.13 .venv-ai | Windows AMD64 CPU | Local source, URD-027 | Same full CPU tuple; torch 2.14.1+cpu | tools/run_compatibility.py --require-all; results-training.json | PASS (11/11, zero skips) | Adds full nonlinear training/Python agreement/save/reload; 99.71% on separate synthetic test set |
 | 2026-10-15 | 3.13.13 .venv-resnet | Windows AMD64 / RTX5060Ti16GiB, driver591.74 | Local source, URD-028 | torch2.14.1+cu130, torchvision0.29.1+cu130, CUDA13.0, cuDNN9.24; numpy2.5.4, Pillow12.3.0, matplotlib3.11.2, arabic-reshaper3.0.1, python-bidi0.6.11 | 50epoch actualSTL10 run; 22 experimenttests; saved-results verifier | PASS | 77.35% on8000 test, selectedvalepoch44; exact checkpoint logits; UrduPNG visual review/SVGXML; source/hash/labels/counts audit |
+| 2026-10-15 | 3.13.13 | Windows AMD64 | Initial public source 841399b / URD-030 | Standard library only | `python -X utf8 -m unittest discover -s tests -q`; `python -X utf8 examples/verify_examples.py` | PASS (162 core, zero skips; five pairs) | Fresh publication baseline; hosted CI is separate and pending |
 
 If a test is skipped because `torch` or another dependency isn't installed, write **SKIP** with the reason rather than "supports torch." Record hard-to-reproduce accelerator details when relevant.
 
@@ -1344,6 +1346,22 @@ UrduPy is successful when a learner can write understandable Urdu code **and** a
   Rollback for documentation is a focused revert; removing public access is a
   separate maintainer decision. This authorizes GitHub source publication only;
   PyPI, release creation and native-speaker acceptance remain separate gates.
+
+- **2026-10-15 — URD-030 completed.** Created the public repository
+  https://github.com/Optimizer077/urdupy and pushed all 128 reviewed source files
+  as main commit 841399b5ad6f39350ca1d16bcd9270e617e37539. Git origin points to
+  that HTTPS repository and main tracks origin/main. Anonymous GitHub API reads
+  confirm public visibility, README availability and matching remote commit;
+  `git ls-remote --heads origin main` independently matches local HEAD.
+  A fresh anonymous clone also passes all 162 core tests and five example pairs;
+  its disposable checkout is ignored under .verification. The first hosted CI
+  run 38685274655 is in progress, not a claimed pass. Updated
+  README clone instructions, tracker, compatibility matrix and implementation
+  handoff. Baseline remains 162 core tests and five paired examples PASS; no
+  implementation changes or observed regressions. Datasets, checkpoints,
+  environments, generated run/build output and credentials were not uploaded.
+  No PyPI package, release or tag was published. Next safe step is to inspect
+  the hosted CI result; remaining PyPI/name/community gates stay explicit.
 
 - **2026-10-15 — Documentation/diagram pass (docs only).** User asked for a
   review, a block diagram, guidance on linking torch and other libraries, proper

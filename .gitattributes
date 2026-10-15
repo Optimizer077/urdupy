@@ -1,0 +1,5 @@
+# Preserve exported result bytes and their recorded hashes on every platform.
+docs/نتائج/ریسنیٹ/*.svg -text
+docs/نتائج/ریسنیٹ/*.png -text
+docs/نتائج/ریسنیٹ/*.csv -text
+docs/نتائج/ریسنیٹ/*.json -text

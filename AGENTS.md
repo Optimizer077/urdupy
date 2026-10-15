@@ -31,6 +31,20 @@
 
 ## 0. Mandatory Instructions for Every Agent
 
+> **URD-032 (2026-10-15):** Maintainer requests a standalone complete-Urdu
+> learning/training path, removal of Python embedding from the primary README,
+> a complete Urdu STL-10 ResNet workflow and published-in-repo training results.
+> Preserve the historical URD-028 source/checkpoints/hash evidence. New runnable
+> files live in `examples/مکمل_اردو/ایس_ٹی_ایل۱۰/`, with zero ASCII letters in
+> `.urdu` source, including comments and strings. Three parallel scopes: model/
+> data/inference; training; plots/reporting. Integrator owns README, results assets,
+> shared tracker and cross-module validation. Fresh baseline:230 core PASS;
+> historical experiment22 tests PASS before edits. No runtime independence
+> from CPython is claimed; independence means standalone Urdu programs/commands.
+> The implementation initially implied no new public push or registry upload.
+> The subsequent explicit `push it` instruction authorizes GitHub publication
+> of this reviewed URD-032 update; registry publication remains separate.
+
 > **URD-031 superseding scope (2026-10-15):** The maintainer explicitly requests
 > an Urdu-only programming surface, including PyTorch, NumPy and dependencies.
 > This supersedes the early non-goal against translated library APIs. Implement
@@ -895,7 +909,7 @@ Milestones are sequential at the integration level. Agents may research future w
 | First public release | Source public at [Optimizer077/urdupy](https://github.com/Optimizer077/urdupy); package **NOT PUBLISHED to PyPI**; local 0.1.0a1 alpha artifacts |
 | Latest stable CPython support | Core PASS on 3.12.13, 3.13.13, 3.14.6 and latest stable 3.15.0; Windows AMD64; metadata >=3.12,<3.16 |
 | Official PyPI project name | **UNVERIFIED** ownership/registerability; candidate endpoints returned HTTP 404 |
-| Core quick-test result | **230/230 PASS, zero skips on all four production minors and clean installs**; preserved 57-test M0 baseline; URD-031 handoff |
+| Core quick-test result | **234/234 PASS, zero skips on all four production minors and clean installs**; preserved 57-test M0 baseline; URD-032 handoff |
 | NumPy/OpenCV/PyTorch support | **19/19 offline CPU tests PASS, zero skips**, includes complete Urdu ResNet/SGD/AdamW/vision/BERT/graphs; 13,975 names in 24 namespaces audited |
 | Current release blockers | No failing local engineering checks; external publication approval/name ownership/remote CI/community feedback remain |
 | Maintainer-approved canonical grammar | Delegated technical **1.0-local** contract, 35 hard + 2 contextual words and 15 aliases; human naming feedback not fabricated |
@@ -935,6 +949,7 @@ Milestones are sequential at the integration level. Agents may research future w
 | URD-029 | P1 | M5 | Pip dependency extras and verified local installation | DONE | Integrator | science/ai extras; actual pip AI/science/core installs; 162core tests on4clean wheel minors +315sdist; 11AI tests; CUDA retained; dist/pip-extras evidence; no publication |
 | URD-030 | P1 | M5 | Publish the source as a public GitHub repository | DONE | Integrator | [Optimizer077/urdupy](https://github.com/Optimizer077/urdupy), public visibility and anonymous clone verified; initial main 841399b; cloned 162 core tests and five example pairs PASS; hosted CI in progress |
 | URD-031 | P0 | M3-M5 | Complete Urdu dependency source surface and Urdu commands | DONE | Integrator + three parallel agents | 763 aliases and total identifier/text spellings; six zero-Latin examples; 230 core tests on four clean wheel minors + 3.15 sdist; 19 AI tests; 13,975 names/24 namespaces; installed CUDA autograd PASS; docs/urdu-only-handoff.md |
+| URD-032 | P0 | M3-M5 | Standalone complete Urdu ResNet and tracked training results | DONE | Integrator + three parallel agents | 234 core on4clean wheel minors +315sdist; 27 new workflow, 22 historical and 19 optional AI tests PASS; full-width96px one-epoch CUDA run; preserved50epoch77.35% results exported; all6README programs execute; docs/standalone-urdu-handoff.md |
 
 ### 12.3 Active tasks / ownership
 
@@ -951,6 +966,7 @@ Milestones are sequential at the integration level. Agents may research future w
 | URD-020..023/026 | platform_research (packaging role) | 2026-10-15 | Metadata/manifest/CI/editor/license/docs, ADR-012 | Local packaging/technical contract; external gates separate | DONE drafts; integration verification |
 | URD-030 | Integrator / main | 2026-10-15 | README.md, AGENTS.md, publication handoff and Git configuration | Public GitHub source repository; preserve language/runtime and existing ignored local artifacts | DONE |
 | URD-031 | Integrator + catalog/examples/CLI agents | 2026-10-15 | Integrator: compiler/runtime/shared docs; agents: separate catalog, CLI/verifier, examples/tests | Complete Urdu source mode, native objects and legacy compatibility | DONE; independently reviewed |
+| URD-032 | Integrator + model/data, training, plotting agents | 2026-10-15 | Agents: seven new Urdu workflow modules and27 tests; integrator: catalog/docs/tracked results/core contracts/packaging | Standalone Urdu programs, real GPU run, preserved historical evidence | DONE; agents frozen, integration verified |
 
 Only one agent should **directly edit the canonical keyword registry at a time**. Coordinate merge timing for importer/translator interfaces. Parallel agents should prefer separate tests/docs or clearly partitioned files.
 
@@ -1345,6 +1361,49 @@ UrduPy is successful when a learner can write understandable Urdu code **and** a
 ---
 
 ## 21. Session Updates (append newest entries here)
+
+- **2026-10-15 — URD-032 GitHub publication authorized.** Maintainer explicitly
+  requests `push it` for the completed standalone Urdu training/results update.
+  Fresh checks:234 core tests and five paired examples PASS on Python3.13.13.
+  Fetched origin/main and local main both equal547f613, no divergence. Reviewed
+  38 changed/new files,2,832,905bytes before this log update; source, tests,
+  documentation and compact training graphs/metrics only. Credential/private-key
+  pattern scan has no findings; no file exceeds1MB. Existing ignore rules exclude
+  environments, datasets, checkpoints, build outputs and local training runs.
+  Existing URD-032 artifact evidence records five clean installs and234 core tests
+  each; model/runtime behavior is unchanged in this publication step. Staging
+  exposed Git line-ending conversion on generated SVG/CSV exports; added a
+  narrow .gitattributes rule to preserve their exact bytes and recorded hashes.
+  The final scope is39files. Native generated SVG path whitespace and recorded
+  Urdu source bytes are preserved. Check staged artifact hashes, then commit
+  and push this reviewed scope to Optimizer077/urdupy main, then verify remote
+  commit identity and a clean worktree. Earlier no-publication statements describe
+  the initial implementation scope. No PyPI upload or GitHub release is requested.
+
+- **2026-10-15 — URD-032 standalone complete Urdu training.** Fresh baseline:
+  clean547f613, 230 core and22 historical tests PASS. Three parallel agents
+  implemented seven zero-ASCII-letter Urdu modules: model/data/inference,
+  training and plots/audit. Integrator expanded the catalog to881 entries,
+  replaced Python embedding/mixed README code with executable Urdu programs,
+  and exported the preserved50epoch result into tracked docs. Four new core
+  contracts verify zero Latin letters across15sources, direct sibling imports,
+  README compilation and public result counts/hashes. Verification:234 core
+  PASS on clean wheel installs3.12.13/3.13.13/3.14.6/3.15.0 plus clean315sdist;
+  27 new workflow,22 historical and19 optional AI tests PASS, zero skips;
+  five paired examples PASS. All six current README Urdu blocks actually ran
+  through the installed console; a short-example item() spelling typo found
+  by execution was corrected; its100-step loss ends0.0003718625. Strict model
+  state and real historical logits equal the old source; data normalization
+  and split parity verified. Actual standalone CUDA run used96px/fullwidth64,
+  11,173,962parameters,4k/1k/8k data,1epoch: trainloss2.2751248512, val20.7%,
+  test1728/8000=21.6%, reload difference0. Four Urdu PNG/SVG pairs inspected;
+  saved-result audit and offline replot CLI both PASS. The historical50epoch
+  77.35% run is clearly separate; original seven sources/checkpoints unchanged.
+  Public export reconciles raw labels/four MD5s/splits/all predictions/bestepoch/
+  source and checkpoint hashes. Local outputs remain ignored. New artifacts,
+  exact installed paths, checksums and reports: dist/standalone-urdu; handoff:
+  docs/standalone-urdu-handoff.md. CPython remains the execution backend.
+  No new push or registry upload; no data/weight download, no known regression.
 
 - **2026-10-15 — URD-031 GitHub publication authorized.** Maintainer explicitly
   requests `push` after the complete Urdu surface implementation. Fresh baseline:

@@ -21,6 +21,8 @@ Start at the top and go down. Each page is short and links onward.
 | [AI compatibility](ai-compatibility.md) | See exactly which library versions and operations were tested. |
 | [Science examples](../examples/science/README.md) | Run paired `.urdu` / `.py` examples, including neural-network training. |
 | [مکمل اردو مثالیں](../examples/مکمل_اردو/README.md) | Run six entirely Urdu scientific/AI programs. |
+| [مکمل اردو ریسنیٹ](../examples/مکمل_اردو/ایس_ٹی_ایل۱۰/README.md) | Train, predict, replot and audit STL-10 with standalone Urdu commands. |
+| [ResNet training results](نتائج/ریسنیٹ/README.md) | Inspect all four saved graphs, epoch history, class metrics and hashes. |
 
 ## Understand the internals
 
@@ -39,6 +41,7 @@ Start at the top and go down. Each page is short and links onward.
 | [Naming proposals](naming-proposals.md) | How to propose or change an Urdu keyword. |
 | [Release checklist](release.md) | Local artifact checks and the remaining external gates. |
 | [Roadmap](roadmap.md) · [Implementation handoff](implementation-handoff.md) | Project status and recorded evidence. |
+| [Standalone Urdu handoff](standalone-urdu-handoff.md) | Complete Urdu training, preserved results and actual GPU verification. |
 | [Security](../SECURITY.md) · [Changelog](../CHANGELOG.md) | Policies and history. |
 
 Historical design records: [Phase 1](phase-1.md), [M0 handoff](handoff.md),

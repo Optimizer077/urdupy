@@ -74,9 +74,22 @@ def inspect_artifacts(wheel, sdist):
                          "tests/test_runtime.py", "tests/test_urdu_cli.py", "tests/test_urdu_catalog.py",
                          "tests/test_urdu_surface.py", "examples/01_conditions.urdu",
                          "examples/مکمل_اردو/عددی_حساب.urdu", "examples/مکمل_اردو/عصبی_تربیت.urdu",
+                         "examples/مکمل_اردو/آزاد_پروگرام.urdu", "examples/مکمل_اردو/حساب.urdu",
+                         "examples/مکمل_اردو/ایس_ٹی_ایل۱۰/README.md",
+                         "tests/test_standalone_docs.py", "tools/export_resnet_results.py",
+                         "docs/standalone-urdu-handoff.md", "docs/نتائج/ریسنیٹ/README.md",
+                         "docs/نتائج/ریسنیٹ/خلاصہ.json", "docs/نتائج/ریسنیٹ/تربیتی_تاریخ.csv",
+                         "docs/نتائج/ریسنیٹ/جماعتی_نتائج.csv",
                          "tools/verify_release.py", "docs/language-reference.md",
                          "docs/adr/015-complete-urdu-surface.md"):
             assert required in relative, f"sdist is missing {required}"
+        for name in ("ماڈل", "اعداد", "تربیت", "پیشگوئی", "خاکے", "دوبارہ_خاکے", "جانچ"):
+            assert f"examples/مکمل_اردو/ایس_ٹی_ایل۱۰/{name}.urdu" in relative
+        for name in ("تربیتی_خاکے", "الجھاؤ_جدول", "جماعتی_درستگی", "پیشگوئیاں"):
+            for extension in ("png", "svg"):
+                assert f"docs/نتائج/ریسنیٹ/{name}.{extension}" in relative
+        for name in ("test_model_data", "test_training", "test_reporting"):
+            assert f"examples/مکمل_اردو/ایس_ٹی_ایل۱۰/{name}.py" in relative
         assert any(name.startswith("editor/") and name.endswith(".json") for name in relative)
         assert not any(part.startswith(".venv") or part in {".runtimes", "__pycache__", ".verification"}
                        for parts in paths for part in parts)

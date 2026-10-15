@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased — Standalone complete Urdu training (2026-10-15)
+
+- Made standalone Urdu programs the README's primary path, with Urdu sibling
+  imports and directly runnable training instead of Python embedding examples.
+- Added a complete Urdu STL-10 ResNet workflow: model, raw data, augmentation,
+  training, prediction, four graph pairs and an independent results audit. All
+  fifteen complete-mode `.urdu` sources contain zero ASCII letters, including
+  strings and comments; native PyTorch objects and the CPython backend remain.
+- Preserved the earlier 50-epoch run and exported its independently reconciled
+  77.35% result, full history, class metrics, hashes and four PNG/SVG graphs into
+  tracked documentation. The new model loads its weights with identical output.
+- Executed the new standalone workflow on real data and CUDA for one full-width
+  96px epoch: 4,000/1,000/8,000 images, 21.6% test accuracy, exact reload parity.
+  This integration run is distinct from the earlier 50-epoch result.
+- Added Urdu library spellings and source-package asset checks. Verification:
+  234 core, 27 new workflow, 22 historical experiment and 19 optional AI tests
+  pass. Reproduction and artifact evidence: `docs/standalone-urdu-handoff.md`.
+
 ## Unreleased — Complete Urdu dependency surface (2026-10-15)
 
 - Added opt-in `# اردوپائی: مکمل` mode: imports, attributes, parameters, keyword

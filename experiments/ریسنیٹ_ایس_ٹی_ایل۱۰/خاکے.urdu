@@ -1,0 +1,294 @@
+"""اصل تربیتی نتائج کے اردو خاکے؛ تمام درستگی کی قدریں صفر تا ایک ہیں۔
+
+خاکے_بناؤ(history, report, predictions, output) تصویری فائلوں کے راستے لوٹاتا ہے۔
+آزمائشی مجموعہ صرف آخری جانچ میں آتا ہے؛ دور وار منحنیات تربیت اور توثیق کی ہیں۔
+"""
+
+درآمد math
+درآمد os
+سے pathlib درآمد Path
+
+درآمد arabic_reshaper
+سے bidi.algorithm درآمد get_display
+درآمد matplotlib
+
+matplotlib.use("Agg")
+درآمد matplotlib.pyplot بطور plt
+سے matplotlib درآمد font_manager, ft2font
+سے matplotlib.colors درآمد LinearSegmentedColormap
+سے matplotlib.ticker درآمد FuncFormatter, MaxNLocator
+درآمد numpy بطور np
+
+
+_ہندسے = str.maketrans("0123456789%", "۰۱۲۳۴۵۶۷۸۹٪")
+_نیلا = "#245B8A"
+_سنہری = "#B87817"
+_سیاہ = "#253444"
+_سرمئی = "#64717D"
+_مقامی_ترتیب = bool(getattr(ft2font, "__libraqm_version__", ""))
+
+
+فنکشن اردو_متن(عبارت):
+    """Matplotlib کے لیے متصل اردو حروف اور دائیں سے بائیں ترتیب۔"""
+    عبارت = str(عبارت).translate(_ہندسے)
+    # نئے Matplotlib میں libraqm خود حروف جوڑتا اور ترتیب دیتا ہے۔
+    # پہلے سے الٹا متن دینے سے حروف دوبارہ الٹ جائیں گے۔
+    اگر _مقامی_ترتیب:
+        واپس عبارت
+    واپس get_display(arabic_reshaper.reshape(عبارت), base_dir="R")
+
+
+فنکشن اردو_عدد(عدد, مقام=0):
+    اگر abs(عدد - round(عدد)) < 1e-7:
+        واپس str(round(عدد)).translate(_ہندسے)
+    واپس f"{عدد:g}".translate(_ہندسے)
+
+
+فنکشن اردو_فیصد(عدد, مقام=0):
+    واپس f"{عدد:g}٪".translate(_ہندسے)
+
+
+فنکشن خط_چنو(اطلاع):
+    """Windows پر Tahoma، یا ماحول میں دیا گیا متصل عربی خط۔"""
+    راستے = [اطلاع.get("font_path"), os.environ.get("URDUPY_URDU_FONT")]
+    راستے.append(Path(os.environ.get("WINDIR", "C:/Windows")) / "Fonts" / "tahoma.ttf")
+    ہر راستہ میں راستے:
+        اگر راستہ اور Path(راستہ).is_file():
+            font_manager.fontManager.addfont(str(راستہ))
+            واپس font_manager.FontProperties(fname=str(راستہ)).get_name()
+    ہر نام میں ("Noto Naskh Arabic", "Noto Sans Arabic", "Tahoma", "DejaVu Sans"):
+        کوشش:
+            راستہ = font_manager.findfont(نام, fallback_to_default=False)
+            واپس font_manager.FontProperties(fname=راستہ).get_name()
+        سوائے ValueError:
+            جاری
+    اٹھاؤ RuntimeError("اردو خط نہیں ملا؛ URDUPY_URDU_FONT میں خط کا راستہ دیں۔")
+
+
+فنکشن محور_سجاؤ(محور, فیصد=False):
+    محور.spines["top"].set_visible(False)
+    محور.spines["right"].set_visible(False)
+    محور.spines["left"].set_color("#A5AFB9")
+    محور.spines["bottom"].set_color("#A5AFB9")
+    محور.tick_params(colors=_سیاہ, labelsize=11)
+    محور.set_axisbelow(True)
+    محور.grid(axis="y", color="#E3E7EB", linewidth=0.8)
+    محور.xaxis.set_major_formatter(FuncFormatter(اردو_عدد))
+    محور.yaxis.set_major_formatter(FuncFormatter(اردو_فیصد اگر فیصد ورنہ اردو_عدد))
+
+
+فنکشن محفوظ_کرو(شکل, منزل, نام):
+    راستے = []
+    کوشش:
+        ہر توسیع میں ("png", "svg"):
+            راستہ = منزل / f"{نام}.{توسیع}"
+            شکل.savefig(راستہ, dpi=170, bbox_inches="tight", facecolor="white")
+            راستے.append(راستہ)
+    آخرکار:
+        plt.close(شکل)
+    واپس راستے
+
+
+فنکشن تربیتی_خاکہ(تاریخ, اطلاع, منزل):
+    ادوار = np.asarray([سطر["epoch"] ہر سطر میں تاریخ], dtype=int)
+    شکل, محاور = plt.subplots(1, 2, figsize=(13.5, 6.2))
+    شکل.subplots_adjust(left=0.07, right=0.98, bottom=0.22, top=0.79, wspace=0.22)
+    شکل.suptitle(اردو_متن("ریسنیٹ کی تربیت — ایس ٹی ایل ۱۰"), fontsize=22, y=0.98)
+    شکل.text(0.5, 0.875, اردو_متن("ہر دور کے بعد تربیت اور توثیق کا موازنہ"),
+             ha="center", color=_سرمئی, fontsize=13)
+    بہترین = اطلاع.get("best_epoch")
+    ہر محور, چابی, عنوان, لیبل, فیصد میں (
+        (محاور[0], "loss", "نقصان", "کراس اینٹروپی نقصان", False),
+        (محاور[1], "accuracy", "درستگی", "درست پیشگوئیاں (٪)", True),
+    ):
+        ضرب = 100 اگر فیصد ورنہ 1
+        تربیت = [سطر[f"train_{چابی}"] * ضرب ہر سطر میں تاریخ]
+        توثیق = [سطر[f"val_{چابی}"] * ضرب ہر سطر میں تاریخ]
+        محور.plot(ادوار, تربیت, color=_نیلا, linewidth=2.2, marker="o", markersize=4,
+                   label=اردو_متن("تربیت"))
+        محور.plot(ادوار, توثیق, color=_سنہری, linewidth=2.2, linestyle="--", marker="s",
+                   markersize=4, markerfacecolor="white", label=اردو_متن("توثیق"))
+        اگر بہترین ہے نہیں کچھ_نہیں:
+            محور.axvline(بہترین, color=_سرمئی, linewidth=1, linestyle=":",
+                         label=اردو_متن(f"منتخب دور: {بہترین}"))
+        محور.set_title(اردو_متن(عنوان), fontsize=16, loc="right", pad=12)
+        محور.set_xlabel(اردو_متن("تربیتی دور"), labelpad=10)
+        محور.set_ylabel(اردو_متن(لیبل), labelpad=10)
+        محور_سجاؤ(محور, فیصد)
+        محور.set_ylim(bottom=0, top=100 اگر فیصد ورنہ کچھ_نہیں)
+        اگر لمبائی(ادوار) > 1:
+            محور.set_xlim(ادوار.min(), ادوار.max())
+            وقفہ = max(1, math.ceil((ادوار.max() - ادوار.min()) / 8))
+            نشانات = ترتیب(مجموعہ([صحیح_عدد(ادوار.min()), صحیح_عدد(ادوار.max())] +
+                                  list(range(صحیح_عدد(ادوار.min()), صحیح_عدد(ادوار.max()) + 1, وقفہ))))
+            محور.set_xticks(نشانات)
+        ورنہ:
+            محور.set_xticks(ادوار)
+        محور.legend(frameon=False, fontsize=11, loc="best")
+    شکل.text(0.5, 0.075,
+             اردو_متن(f"تربیتی تصاویر: {اطلاع['train_count']:,}   |   توثیقی تصاویر: {اطلاع['val_count']:,}"),
+             ha="center", color=_سیاہ, fontsize=12)
+    شکل.text(0.5, 0.025, اردو_متن("آزمائشی تصاویر ان منحنیات میں شامل نہیں ہیں۔"),
+             ha="center", color=_سرمئی, fontsize=11)
+    واپس محفوظ_کرو(شکل, منزل, "تربیتی_خاکے")
+
+
+فنکشن الجھاؤ_خاکہ(جدول, جماعتیں, اطلاع, منزل):
+    شکل, محور = plt.subplots(figsize=(12.8, 11.2))
+    شکل.subplots_adjust(left=0.15, right=0.88, bottom=0.16, top=0.83)
+    شکل.suptitle(اردو_متن("آزمائشی پیشگوئیوں کا الجھاؤ جدول"), fontsize=22, y=0.97)
+    شکل.text(0.5, 0.905, اردو_متن(f"{اطلاع['test_count']:,} تصاویر   |   درستگی: {اطلاع['test_accuracy'] * 100:.2f}٪"),
+             ha="center", fontsize=13, color=_سرمئی)
+    رنگ = LinearSegmentedColormap.from_list("urdu_blue", ["#F4F7FA", "#A4C6DF", "#245B8A"])
+    نقش = محور.imshow(جدول, cmap=رنگ, vmin=0)
+    محور.set_xticks(range(لمبائی(جماعتیں)), [اردو_متن(نام) ہر نام میں جماعتیں], fontsize=12)
+    محور.set_yticks(range(لمبائی(جماعتیں)), [اردو_متن(نام) ہر نام میں جماعتیں], fontsize=12)
+    محور.set_xlabel(اردو_متن("پیشگوئی کردہ جماعت"), fontsize=14, labelpad=16)
+    محور.set_ylabel(اردو_متن("حقیقی جماعت"), fontsize=14, labelpad=18)
+    محور.set_xticks(np.arange(لمبائی(جماعتیں) + 1) - 0.5, minor=True)
+    محور.set_yticks(np.arange(لمبائی(جماعتیں) + 1) - 0.5, minor=True)
+    محور.grid(which="minor", color="white", linewidth=1.2)
+    محور.tick_params(which="minor", bottom=False, left=False)
+    ہر حاشیہ میں محور.spines.values():
+        حاشیہ.set_visible(False)
+    حد_رنگ = جدول.max() * 0.57
+    ہر صف میں حد(لمبائی(جماعتیں)):
+        ہر ستون میں حد(لمبائی(جماعتیں)):
+            تعداد = صحیح_عدد(جدول[صف, ستون])
+            محور.text(ستون, صف, اردو_عدد(تعداد), ha="center", va="center", fontsize=11,
+                       color="white" اگر تعداد > حد_رنگ ورنہ _سیاہ)
+    پیمانہ = شکل.colorbar(نقش, ax=محور, fraction=0.041, pad=0.04)
+    پیمانہ.set_label(اردو_متن("تصاویر کی تعداد"), fontsize=12, labelpad=14)
+    پیمانہ.ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    پیمانہ.ax.yaxis.set_major_formatter(FuncFormatter(اردو_عدد))
+    شکل.text(0.5, 0.055, اردو_متن("صف: حقیقی جماعت   |   ستون: پیشگوئی کردہ جماعت   |   ہر خانے میں تصاویر کی تعداد"),
+             ha="center", fontsize=12, color=_سرمئی)
+    واپس محفوظ_کرو(شکل, منزل, "الجھاؤ_جدول")
+
+
+فنکشن جماعتی_خاکہ(جدول, جماعتیں, اطلاع, منزل):
+    تعداد = جدول.sum(axis=1)
+    درست = np.diag(جدول)
+    شرح = np.divide(درست * 100.0, تعداد, out=np.full(لمبائی(جماعتیں), np.nan), where=تعداد > 0)
+    شکل, محور = plt.subplots(figsize=(12, 8.8))
+    شکل.subplots_adjust(left=0.18, right=0.87, bottom=0.15, top=0.80)
+    شکل.suptitle(اردو_متن("ہر جماعت کی آزمائشی درستگی"), fontsize=22, y=0.97)
+    شکل.text(0.5, 0.89, اردو_متن(f"مکمل آزمائشی مجموعہ: {اطلاع['test_count']:,} تصاویر"),
+             ha="center", color=_سرمئی, fontsize=13)
+    مقامات = np.arange(لمبائی(جماعتیں))
+    محور.barh(مقامات, np.nan_to_num(شرح), color=_نیلا, height=0.64)
+    محور.set_yticks(مقامات, [اردو_متن(نام) ہر نام میں جماعتیں], fontsize=13)
+    محور.invert_yaxis()
+    محور.set_xlim(0, 100)
+    محور.set_xticks([0, 20, 40, 60, 80, 100])
+    محور.xaxis.set_major_formatter(FuncFormatter(اردو_فیصد))
+    محور.set_xlabel(اردو_متن("اپنی حقیقی جماعت میں درست پیشگوئیوں کا تناسب (٪)"), fontsize=13, labelpad=14)
+    محور.grid(axis="x", color="#E3E7EB", linewidth=0.8)
+    محور.set_axisbelow(True)
+    ہر نام میں ("top", "right", "left"):
+        محور.spines[نام].set_visible(False)
+    محور.spines["bottom"].set_color("#A5AFB9")
+    محور.tick_params(axis="y", length=0, pad=10)
+    ہر مقام, شرح_جماعت, صحیح, کل میں zip(مقامات, شرح, درست, تعداد):
+        لیبل = f"{شرح_جماعت:.1f}٪  ({صحیح}/{کل})" اگر کل > 0 ورنہ "کوئی تصویر نہیں"
+        محور.text(102, مقام, اردو_متن(لیبل), va="center", ha="left", fontsize=11,
+                   color=_سیاہ, clip_on=False)
+    شکل.text(0.5, 0.035, اردو_متن("قوسین میں: درست تصاویر / اس جماعت کی کل تصاویر"),
+             ha="center", fontsize=12, color=_سرمئی)
+    واپس محفوظ_کرو(شکل, منزل, "جماعتی_درستگی")
+
+
+فنکشن تصویری_خاکہ(پیشگوئیاں, جماعتیں, منزل):
+    تصاویر = پیشگوئیاں.get("images", [])
+    اگر لمبائی(تصاویر) == 0:
+        واپس []
+    اشاریے = پیشگوئیاں.get("sample_indices", list(range(لمبائی(تصاویر))))
+    اگر لمبائی(اشاریے) != لمبائی(تصاویر):
+        اٹھاؤ ValueError("sample_indices اور images کی تعداد برابر ہونی چاہیے۔")
+    کل = min(لمبائی(تصاویر), 20)
+    تیار = []
+    ہر مقام میں حد(کل):
+        اشاریہ = صحیح_عدد(اشاریے[مقام])
+        اگر اشاریہ < 0 یا اشاریہ >= لمبائی(پیشگوئیاں["targets"]):
+            اٹھاؤ ValueError("sample_indices میں تصویر کا اشاریہ حد سے باہر ہے۔")
+        تصویر = np.asarray(تصاویر[مقام])
+        اگر تصویر.ndim != 3:
+            اٹھاؤ ValueError("تصویر تین جہتی RGB ہونی چاہیے۔")
+        اگر تصویر.shape[0] == 3 اور تصویر.shape[-1] != 3:
+            تصویر = تصویر.transpose(1, 2, 0)
+        اگر تصویر.shape[-1] != 3 یا تصویر.dtype != np.uint8:
+            اٹھاؤ ValueError("images میں خام uint8 RGB تصاویر درکار ہیں؛ نارملائز شدہ ٹینسر نہیں۔")
+        تیار.append(تصویر)
+    ستون = 5 اگر کل > 12 ورنہ 4
+    صفیں = math.ceil(کل / ستون)
+    شکل, محاور = plt.subplots(صفیں, ستون, figsize=(3.25 * ستون, 3.7 * صفیں + 1.25), squeeze=False)
+    شکل.subplots_adjust(left=0.035, right=0.965, bottom=0.04, top=0.88, hspace=0.58, wspace=0.25)
+    شکل.suptitle(اردو_متن("آزمائشی تصاویر اور ریسنیٹ کی پیشگوئیاں"), fontsize=22, y=0.985)
+    شکل.text(0.5, 0.94, اردو_متن("ہر تصویر کے اوپر حقیقی جماعت اور پیشگوئی درج ہے۔"),
+             ha="center", color=_سرمئی, fontsize=12)
+    ہر مقام, محور میں گنو(محاور.flat):
+        محور.axis("off")
+        اگر مقام >= کل:
+            جاری
+        اشاریہ = صحیح_عدد(اشاریے[مقام])
+        تصویر = تیار[مقام]
+        حقیقی = صحیح_عدد(پیشگوئیاں["targets"][اشاریہ])
+        اندازہ = صحیح_عدد(پیشگوئیاں["predictions"][اشاریہ])
+        محور.imshow(تصویر)
+        حالت = "درست" اگر حقیقی == اندازہ ورنہ "غلط"
+        عنوان = f"حقیقی: {جماعتیں[حقیقی]}\nپیشگوئی: {جماعتیں[اندازہ]} — {حالت}"
+        محور.set_title("\n".join(اردو_متن(سطر) ہر سطر میں عنوان.splitlines()),
+                       color=_نیلا اگر حقیقی == اندازہ ورنہ _سنہری, fontsize=12, pad=9)
+    واپس محفوظ_کرو(شکل, منزل, "پیشگوئیاں")
+
+
+فنکشن خاکے_بناؤ(history, report, predictions, output):
+    """حقیقی epoch metrics اور آخری test predictions سے PNG/SVG محفوظ کریں۔
+
+    history: epoch/train_loss/train_accuracy/val_loss/val_accuracy کی لغات۔
+    report: class_names_urdu، train_count، val_count، test_count، test_accuracy۔
+    predictions: targets، predictions؛ اختیاری images اور sample_indices۔
+    تصاویر اصل uint8 RGB ہوں؛ accuracy اور test_accuracy صفر تا ایک ہوں۔
+    """
+    اگر نہیں history:
+        اٹھاؤ ValueError("تربیتی تاریخ خالی نہیں ہو سکتی۔")
+    جماعتیں = report["class_names_urdu"]
+    اگر نہیں جماعتیں یا لمبائی(مجموعہ(جماعتیں)) != لمبائی(جماعتیں):
+        اٹھاؤ ValueError("جماعتوں کے اردو نام منفرد اور غیر خالی ہوں۔")
+    حقیقی = np.asarray(predictions["targets"], dtype=np.int64)
+    اندازے = np.asarray(predictions["predictions"], dtype=np.int64)
+    اگر حقیقی.ndim != 1 یا حقیقی.shape != اندازے.shape یا حقیقی.size != report["test_count"]:
+        اٹھاؤ ValueError("آزمائشی labels، predictions اور test_count کی تعداد مختلف ہے۔")
+    اگر حقیقی.size == 0:
+        اٹھاؤ ValueError("آزمائشی مجموعہ خالی ہے۔")
+    اگر np.any(حقیقی < 0) یا np.any(حقیقی >= لمبائی(جماعتیں)) یا np.any(اندازے < 0) یا np.any(اندازے >= لمبائی(جماعتیں)):
+        اٹھاؤ ValueError("جماعت کا اشاریہ حد سے باہر ہے۔")
+    اگر نہیں math.isclose(float(np.mean(حقیقی == اندازے)), report["test_accuracy"], abs_tol=1e-7):
+        اٹھاؤ ValueError("پیشگوئیوں کی درستگی رپورٹ سے مختلف ہے۔")
+    ادوار = []
+    ہر سطر میں history:
+        ادوار.append(سطر["epoch"])
+        ہر چابی میں ("train_loss", "val_loss", "train_accuracy", "val_accuracy"):
+            قدر = سطر[چابی]
+            اگر نہیں math.isfinite(قدر) یا قدر < 0 یا ("accuracy" میں چابی اور قدر > 1):
+                اٹھاؤ ValueError(f"تربیتی قدر درست نہیں: {چابی}")
+    اگر ادوار != ترتیب(مجموعہ(ادوار)):
+        اٹھاؤ ValueError("تربیتی ادوار منفرد اور صعودی ترتیب میں ہوں۔")
+    جدول = np.zeros((لمبائی(جماعتیں), لمبائی(جماعتیں)), dtype=np.int64)
+    np.add.at(جدول, (حقیقی, اندازے), 1)
+    منزل = Path(output)
+    منزل.mkdir(parents=True, exist_ok=True)
+    وضع = {
+        "font.family": خط_چنو(report), "font.size": 12, "text.color": _سیاہ,
+        "axes.labelcolor": _سیاہ, "axes.titlecolor": _سیاہ,
+        "figure.facecolor": "white", "axes.facecolor": "white",
+        "svg.fonttype": "path", "axes.unicode_minus": False,
+    }
+    اگر "text.language" میں plt.rcParams:
+        وضع["text.language"] = "ur"
+    ساتھ plt.rc_context(وضع):
+        راستے = تربیتی_خاکہ(history, report, منزل)
+        راستے.extend(الجھاؤ_خاکہ(جدول, جماعتیں, report, منزل))
+        راستے.extend(جماعتی_خاکہ(جدول, جماعتیں, report, منزل))
+        راستے.extend(تصویری_خاکہ(predictions, جماعتیں, منزل))
+    واپس راستے

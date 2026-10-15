@@ -1,0 +1,92 @@
+{
+  "timestamp_utc": "2026-10-15T01:03:56.489172+00:00",
+  "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:12:50) [MSC v.1942 64 bit (AMD64)]",
+  "executable": "C:\\Users\\Optim\\miniconda3\\python.exe",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "packages": {
+    "numpy": "2.5.2",
+    "Pillow": "12.3.0",
+    "opencv-python-headless": null,
+    "opencv-python": null,
+    "torch": "2.14.1+cpu",
+    "torchvision": null,
+    "transformers": null,
+    "tokenizers": null,
+    "huggingface-hub": null,
+    "safetensors": null,
+    "scipy": null,
+    "pandas": null,
+    "scikit-learn": null
+  },
+  "tests_run": 9,
+  "passed": 5,
+  "skipped": 4,
+  "failures": 0,
+  "errors": 0,
+  "records": [
+    {
+      "test": "compatibility.compat_arrays.NumPyCompatibility.test_ai001_broadcast_shape_dtype_indexing",
+      "status": "PASS",
+      "seconds": 0.100088,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_frameworks.FrameworkCompatibility.test_ai005_transformers_tiny_config_model_completely_offline",
+      "status": "SKIP",
+      "seconds": 1.360659,
+      "detail": "optional module transformers is absent; install a compatible isolated environment"
+    },
+    {
+      "test": "compatibility.compat_frameworks.FrameworkCompatibility.test_torchvision_transforms_and_model_without_pretrained_weights",
+      "status": "SKIP",
+      "seconds": 0.002632,
+      "detail": "optional module torchvision is absent; install a compatible isolated environment"
+    },
+    {
+      "test": "compatibility.compat_torch.TorchCompatibility.test_ai003_module_autograd_and_analytic_sgd_step",
+      "status": "PASS",
+      "seconds": 1.752731,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_torch.TorchCompatibility.test_ai003_temporary_state_dict_roundtrip",
+      "status": "PASS",
+      "seconds": 0.026228,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_torch.TorchCompatibility.test_numpy_tensor_sharing_is_real_for_the_explicit_contiguous_array",
+      "status": "PASS",
+      "seconds": 0.004521,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_vision.VisionCompatibility.test_ai002_opencv_color_gray_and_resize",
+      "status": "SKIP",
+      "seconds": 0.002024,
+      "detail": "optional module cv2 is absent; install a compatible isolated environment"
+    },
+    {
+      "test": "compatibility.compat_vision.VisionCompatibility.test_ai002_pillow_local_png_roundtrip",
+      "status": "PASS",
+      "seconds": 0.080619,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_vision.VisionCompatibility.test_ai004_numpy_opencv_torch_channels_and_model",
+      "status": "SKIP",
+      "seconds": 0.002081,
+      "detail": "optional module cv2 is absent; install a compatible isolated environment"
+    }
+  ],
+  "offline_policy": "local configs/synthetic data; Python socket APIs guarded during each test",
+  "device_policy": "CPU; no accelerator validation claimed",
+  "runtime": "urdupy.runtime.execute_source",
+  "imported_versions": {
+    "numpy": "2.5.2",
+    "PIL": "12.3.0",
+    "torch": "2.14.1+cpu"
+  },
+  "status": "PARTIAL"
+}

@@ -1,0 +1,231 @@
+"""ایس ٹی ایل دس پر اردو ریس نیٹ کی تربیت، جانچ اور تصویری خاکے۔"""
+
+درآمد argparse
+درآمد csv
+درآمد hashlib
+درآمد json
+درآمد platform
+درآمد random
+درآمد time
+سے pathlib درآمد Path
+
+درآمد numpy بطور np
+درآمد torch
+سے torch.utils.data درآمد DataLoader
+
+سے ماڈل درآمد ریسنیٹ۱۸
+سے اعداد درآمد ڈیٹا_تیار_کرو
+سے خاکے درآمد خاکے_بناؤ
+
+
+فنکشن بیج_لگاؤ(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+
+
+فنکشن لکھو(path, value):
+    Path(path).write_text(json.dumps(value, ensure_ascii=جھوٹ, indent=2, allow_nan=جھوٹ) + "\n", encoding="utf-8")
+
+
+فنکشن تربیتی_دور(model, loader, criterion, optimizer, device, scaler):
+    model.train()
+    total_loss, correct, count = 0.0, 0, 0
+    ہر images, targets میں loader:
+        images = images.to(device=device, memory_format=torch.channels_last, non_blocking=سچ)
+        targets = targets.to(device)
+        optimizer.zero_grad(set_to_none=سچ)
+        ساتھ torch.autocast(device_type=device.type, dtype=torch.float16, enabled=device.type == "cuda"):
+            logits = model(images)
+            loss = criterion(logits, targets)
+        اگر نہیں torch.isfinite(loss):
+            اٹھاؤ RuntimeError("تربیتی نقصان محدود عدد نہیں ہے")
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
+        batch_count = targets.size(0)
+        total_loss += loss.item() * batch_count
+        correct += (logits.argmax(dim=1) == targets).sum().item()
+        count += batch_count
+    واپس {"loss": total_loss / count, "accuracy": correct / count, "count": count}
+
+
+@torch.inference_mode()
+فنکشن جانچ(model, loader, criterion, device, predictions=جھوٹ):
+    model.eval()
+    total_loss, correct, count = 0.0, 0, 0
+    labels, guesses, confidence = [], [], []
+    ہر images, targets میں loader:
+        images = images.to(device=device, memory_format=torch.channels_last, non_blocking=سچ)
+        targets = targets.to(device)
+        ساتھ torch.autocast(device_type=device.type, dtype=torch.float16, enabled=device.type == "cuda"):
+            logits = model(images)
+        batch_count = targets.size(0)
+        total_loss += criterion(logits, targets).item() * batch_count
+        predicted = logits.argmax(dim=1)
+        correct += (predicted == targets).sum().item()
+        count += batch_count
+        اگر predictions:
+            labels.extend(targets.cpu().tolist())
+            guesses.extend(predicted.cpu().tolist())
+            confidence.extend(logits.float().softmax(dim=1).max(dim=1).values.cpu().tolist())
+    واپس {"loss": total_loss / count, "accuracy": correct / count, "count": count,
+           "targets": labels, "predictions": guesses, "probabilities": confidence}
+
+
+فنکشن تاریخ_لکھو(history, output):
+    لکھو(output / "تاریخ.json", history)
+    ساتھ (output / "تاریخ.csv").open("w", newline="", encoding="utf-8-sig") بطور stream:
+        writer = csv.DictWriter(stream, fieldnames=list(history[0]))
+        writer.writeheader()
+        writer.writerows(history)
+
+
+فنکشن چلائیں():
+    folder = Path(__file__).resolve().parent
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--data-dir", type=Path, default=folder / "ڈیٹاسیٹ", help="اعداد کا فولڈر")
+    parser.add_argument("--output", type=Path, default=folder / "نتائج" / "ابتدائی_تربیت", help="نتائج کا فولڈر")
+    parser.add_argument("--download", action="store_true", help="اصل ایس ٹی ایل دس ڈاؤن لوڈ کریں")
+    parser.add_argument("--epochs", type=int, default=20, help="تربیتی ادوار")
+    parser.add_argument("--batch-size", type=int, default=64, help="فی قدم تصاویر")
+    parser.add_argument("--image-size", type=int, default=48, help="تصویر کی چوڑائی اور لمبائی")
+    parser.add_argument("--base-width", type=int, default=16, help="ابتدائی چینل")
+    parser.add_argument("--threads", type=int, default=6, help="سی پی یو تھریڈ")
+    parser.add_argument("--seed", type=int, default=42, help="تکرار کے لیے بیج")
+    parser.add_argument("--lr", type=float, default=0.05, help="ابتدائی شرح تعلیم")
+    parser.add_argument("--device", choices=["cpu", "cuda"], default="cpu", help="حساب کا آلہ")
+    args = parser.parse_args()
+    اگر min(args.epochs, args.batch_size, args.base_width, args.threads) < 1 یا args.image_size < 16 یا args.lr <= 0:
+        parser.error("دور، بیچ، چوڑائی، تھریڈ اور شرح مثبت ہوں؛ تصویر کم از کم سولہ پکسل ہو")
+    اگر args.device == "cuda" اور نہیں torch.cuda.is_available():
+        parser.error("اس ماحول میں سی یو ڈی اے دستیاب نہیں")
+    output = args.output.resolve()
+    output.mkdir(parents=سچ, exist_ok=سچ)
+    اگر (output / "ترتیب.json").exists():
+        parser.error("یہ نتیجہ فولڈر پہلے استعمال ہو چکا ہے؛ نیا --output منتخب کریں")
+    torch.set_num_threads(args.threads)
+    بیج_لگاؤ(args.seed)
+    device = torch.device(args.device)
+    اگر device.type == "cuda":
+        torch.backends.cudnn.benchmark = سچ
+    config = vars(args).copy()
+    config["data_dir"] = str(args.data_dir.resolve())
+    config["output"] = str(output)
+    config["python"] = platform.python_version()
+    config["torch"] = str(torch.__version__)
+    config["platform"] = platform.platform()
+    config["cuda_version"] = torch.version.cuda
+    config["gpu_name"] = torch.cuda.get_device_name(0) اگر args.device == "cuda" ورنہ کچھ_نہیں
+    config["precision"] = "automatic mixed float16/float32" اگر args.device == "cuda" ورنہ "float32"
+    config["status"] = "تیاری"
+    لکھو(output / "ترتیب.json", config)
+    دکھاؤ("اعداد کی تیاری شروع ہو رہی ہے", flush=سچ)
+    data = ڈیٹا_تیار_کرو(args.data_dir, image_size=args.image_size, seed=args.seed, download=args.download)
+    لکھو(output / "تقسیم.json", {
+        "train_indices": data["train_indices"], "validation_indices": data["validation_indices"],
+        "mean": data["mean"], "std": data["std"], "class_names": data["class_names"],
+        "class_names_urdu": data["class_names_urdu"], "provenance": data["provenance"],
+    })
+    train_loader = DataLoader(data["train"], batch_size=args.batch_size, shuffle=سچ, num_workers=0,
+                              pin_memory=device.type == "cuda",
+                              generator=torch.Generator().manual_seed(args.seed))
+    val_loader = DataLoader(data["validation"], batch_size=args.batch_size, shuffle=جھوٹ, num_workers=0, pin_memory=device.type == "cuda")
+    model = ریسنیٹ۱۸(num_classes=10, base_width=args.base_width).to(device=device, memory_format=torch.channels_last)
+    criterion = torch.nn.CrossEntropyLoss()
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=0.0005)
+    scaler = torch.amp.GradScaler("cuda", enabled=device.type == "cuda")
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs)
+    parameters = جوڑ(p.numel() ہر p میں model.parameters())
+    دکھاؤ(f"ریس نیٹ اٹھارہ | پیرامیٹر {parameters:,} | آلہ {device} | ادوار {args.epochs}", flush=سچ)
+    history, best_accuracy, best_epoch = [], -1.0, 0
+    start = time.perf_counter()
+    config["status"] = "تربیت"
+    لکھو(output / "ترتیب.json", config)
+    initial = جانچ(model, val_loader, criterion, device)
+    لکھو(output / "ابتدائی_جانچ.json", initial)
+    ہر epoch میں حد(1, args.epochs + 1):
+        epoch_start = time.perf_counter()
+        lr = optimizer.param_groups[0]["lr"]
+        train = تربیتی_دور(model, train_loader, criterion, optimizer, device, scaler)
+        val = جانچ(model, val_loader, criterion, device)
+        row = {"epoch": epoch, "train_loss": train["loss"], "train_accuracy": train["accuracy"],
+               "val_loss": val["loss"], "val_accuracy": val["accuracy"], "lr": lr,
+               "seconds": time.perf_counter() - epoch_start}
+        history.append(row)
+        scheduler.step()
+        اگر val["accuracy"] > best_accuracy:
+            best_accuracy, best_epoch = val["accuracy"], epoch
+            torch.save(model.state_dict(), output / "بہترین_وزن.pt")
+        torch.save({"epoch": epoch, "model": model.state_dict(), "optimizer": optimizer.state_dict(),
+                    "scheduler": scheduler.state_dict(), "config": config,
+                    "scaler": scaler.state_dict(), "augmentation_rng": data["train"].تخم.get_state() اگر hasattr(data["train"], "تخم") ورنہ کچھ_نہیں,
+                    "torch_rng": torch.get_rng_state(), "loader_rng": train_loader.generator.get_state()},
+                   output / "آخری_حالت.pt")
+        تاریخ_لکھو(history, output)
+        دکھاؤ(f"دور {epoch:02d}/{args.epochs} | تربیتی نقصان {train['loss']:.4f} | درستگی {train['accuracy']:.1%} | تصدیقی نقصان {val['loss']:.4f} | درستگی {val['accuracy']:.1%} | وقت {row['seconds']:.1f} ثانیے", flush=سچ)
+    train_seconds = time.perf_counter() - start
+    # Model selection uses validation only. The official test labels are used here once.
+    model.load_state_dict(torch.load(output / "بہترین_وزن.pt", map_location=device, weights_only=سچ))
+    test_loader = DataLoader(data["test"], batch_size=args.batch_size, shuffle=جھوٹ, num_workers=0, pin_memory=device.type == "cuda")
+    test = جانچ(model, test_loader, criterion, device, predictions=سچ)
+    report = {
+        "dataset": "STL-10", "architecture": "ResNet-18 small-image reduced-width" اگر args.base_width != 64 ورنہ "ResNet-18 small-image stem",
+        "blocks": [2, 2, 2, 2], "base_width": args.base_width, "image_size": args.image_size,
+        "parameters": parameters, "epochs": args.epochs, "seed": args.seed,
+        "train_count": لمبائی(data["train"]), "val_count": لمبائی(data["validation"]),
+        "test_count": test["count"], "initial_val_loss": initial["loss"],
+        "initial_val_accuracy": initial["accuracy"], "best_epoch": best_epoch,
+        "best_val_accuracy": best_accuracy, "test_loss": test["loss"],
+        "test_accuracy": test["accuracy"], "test_correct": جوڑ(a == b ہر a, b میں zip(test["targets"], test["predictions"])),
+        "class_names": data["class_names"], "class_names_urdu": data["class_names_urdu"],
+        "mean": data["mean"], "std": data["std"], "train_seconds": train_seconds,
+        "device": str(device), "threads": args.threads, "python": platform.python_version(),
+        "gpu_name": config["gpu_name"], "cuda_version": torch.version.cuda, "precision": config["precision"],
+        "torch": str(torch.__version__), "training": "from scratch; no pretrained weights",
+        "evaluation": "one fixed stratified train/validation split; official test after best validation selection; not STL-10 ten-fold protocol",
+    }
+    لکھو(output / "پیشگوئیاں.json", {k: test[k] ہر k میں ["targets", "predictions", "probabilities"]})
+    ساتھ (output / "پیشگوئیاں.csv").open("w", newline="", encoding="utf-8-sig") بطور stream:
+        writer = csv.writer(stream)
+        writer.writerow(["ترتیب", "اصل_جماعت", "متوقع_جماعت", "اعتماد"])
+        ہر index, (target, guess, probability) میں گنو(zip(test["targets"], test["predictions"], test["probabilities"])):
+            writer.writerow([index, data["class_names_urdu"][target], data["class_names_urdu"][guess], probability])
+    # Verify checkpoint inference using a fresh model; preserve the original test result.
+    restored = ریسنیٹ۱۸(num_classes=10, base_width=args.base_width).to(device=device, memory_format=torch.channels_last)
+    restored.load_state_dict(torch.load(output / "بہترین_وزن.pt", map_location=device, weights_only=سچ))
+    restored.eval()
+    sample_x, _ = next(iter(test_loader))
+    sample_x = sample_x.to(device=device, memory_format=torch.channels_last)
+    ساتھ torch.inference_mode():
+        reload_error = (restored(sample_x) - model(sample_x)).abs().max().item()
+    اگر reload_error != 0:
+        اٹھاؤ RuntimeError(f"محفوظ ماڈل کی پیشگوئی بدل گئی: {reload_error}")
+    report["checkpoint_max_abs_error"] = reload_error
+    report["checkpoint_sha256"] = hashlib.sha256((output / "بہترین_وزن.pt").read_bytes()).hexdigest()
+    report["source_hashes"] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() ہر p میں folder.glob("*.urdu")}
+    لکھو(output / "خلاصہ.json", report)
+    # Unnormalize a bounded image sample for the prediction chart.
+    sample_indices = []
+    ہر label میں حد(10):
+        positions = [i ہر i, target میں گنو(test["targets"]) اگر target == label]
+        sample_indices.extend(positions[:2])
+    display_images = []
+    mean = torch.tensor(data["mean"]).view(3, 1, 1)
+    std = torch.tensor(data["std"]).view(3, 1, 1)
+    ہر index میں sample_indices:
+        image, _ = data["test"][index]
+        display_images.append(((image * std + mean).clamp(0, 1) * 255).byte())
+    plots = خاکے_بناؤ(history, report, {"targets": test["targets"], "predictions": test["predictions"],
+                          "probabilities": test["probabilities"], "images": display_images,
+                          "sample_indices": sample_indices}, output / "خاکے")
+    report["plots"] = [str(p.relative_to(output)) ہر p میں plots]
+    لکھو(output / "خلاصہ.json", report)
+    config["status"] = "مکمل"
+    لکھو(output / "ترتیب.json", config)
+    دکھاؤ(f"تربیت مکمل | بہترین دور {best_epoch} | اصل آزمائشی درستگی {test['accuracy']:.2%} | تصاویر {test['count']} | وقت {train_seconds / 60:.1f} منٹ", flush=سچ)
+    دکھاؤ(f"نتائج: {output}", flush=سچ)
+
+
+اگر __name__ == "__main__":
+    چلائیں()

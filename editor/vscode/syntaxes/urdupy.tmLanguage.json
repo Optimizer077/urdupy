@@ -1,0 +1,36 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "UrduPy",
+  "scopeName": "source.urdupy",
+  "patterns": [
+    {"include": "#urdu-keywords"},
+    {"include": "#urdu-builtins"},
+    {"include": "source.python"}
+  ],
+  "repository": {
+    "urdu-keywords": {
+      "patterns": [
+        {
+          "name": "constant.language.urdupy",
+          "match": "(?<![.\\p{L}\\p{M}\\p{N}_])(?:سچ|جھوٹ|کچھ_نہیں)(?![\\p{L}\\p{M}\\p{N}_])"
+        },
+        {
+          "name": "keyword.control.urdupy",
+          "match": "(?<![.\\p{L}\\p{M}\\p{N}_])(?:اگر|ورنہ_اگر|ورنہ|ہر|میں|جب_تک|اور|یا|نہیں|روکو|جاری|گزر|ہے|فنکشن|واپس|کلاس|درآمد|سے|بطور|کوشش|سوائے|آخرکار|اٹھاؤ|ساتھ|تصدیق|حذف|عالمی|غیر_مقامی|لامبڈا|پیدا_کرو|غیر_متزامن|انتظار)(?![\\p{L}\\p{M}\\p{N}_])"
+        },
+        {
+          "name": "keyword.control.contextual.urdupy",
+          "match": "^\\s*(?:منتخب|صورت)(?=\\s)"
+        }
+      ]
+    },
+    "urdu-builtins": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.urdupy",
+          "match": "(?<![.\\p{L}\\p{M}\\p{N}_])(?:دکھاؤ|ان_پٹ|حد|لمبائی|فہرست|لغت|مجموعہ|صحیح_عدد|اعشاری|متن|ترتیب|گنو|جوڑ|قسم|کھولو)(?![\\p{L}\\p{M}\\p{N}_])"
+        }
+      ]
+    }
+  }
+}

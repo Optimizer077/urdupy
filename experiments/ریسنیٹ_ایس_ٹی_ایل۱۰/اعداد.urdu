@@ -1,0 +1,166 @@
+"""سرکاری ایس ٹی ایل ۱۰ اعداد: ۴۰۰۰ تربیت، ۱۰۰۰ توثیق، ۸۰۰۰ آخری آزمائش۔
+
+اصل نشان زدہ تربیتی تصاویر کی ہر قسم سے ۴۰۰ تربیت اور ۱۰۰ توثیق میں ہیں۔
+اوسط اور معیاری انحراف صرف تربیت کے حصے سے آتے ہیں۔ آزمائشی اعداد الگ ہیں۔
+یہ مکمل ۵۰۰۰ نشان زدہ تصاویر کی تقسیم ہے، معیاری دس فولڈ کا نتیجہ نہیں۔
+"""
+
+سے pathlib درآمد Path
+درآمد importlib.util
+
+درآمد numpy بطور np
+درآمد torch
+سے torch.utils.data درآمد Dataset
+سے torchvision.datasets.utils درآمد check_integrity
+سے torchvision.transforms درآمد functional بطور بصری
+
+
+انگریزی_نام = ["airplane", "bird", "car", "cat", "deer", "dog", "horse", "monkey", "ship", "truck"]
+اردو_نام = ["ہوائی جہاز", "پرندہ", "گاڑی", "بلی", "ہرن", "کتا", "گھوڑا", "بندر", "بحری جہاز", "ٹرک"]
+فائل_جانچ = {
+    "train_X.bin": "918c2871b30a85fa023e0c44e0bee87f",
+    "train_y.bin": "5a34089d4802c674881badbb80307741",
+    "test_X.bin": "7f263ba9f9e0b06b93213547f721ac82",
+    "test_y.bin": "36f9794fa4beb8a2c72628de14fa638e",
+}
+
+
+فنکشن طبقاتی_تقسیم(نشان, seed=42, validation_per_class=100):
+    """ہر قسم میں اتفاقی مگر دوبارہ بن سکنے والی، مکمل الگ تقسیم۔"""
+    نشان = torch.as_tensor(نشان, dtype=torch.long)
+    اگر نشان.ndim != 1 یا لمبائی(نشان) == 0:
+        اٹھاؤ ValueError("نشان ایک غیر خالی یک جہتی فہرست ہونے چاہییں۔")
+    اگر validation_per_class < 1:
+        اٹھاؤ ValueError("توثیق میں ہر قسم کا کم از کم ایک نمونہ ضروری ہے۔")
+    تخم = torch.Generator().manual_seed(seed)
+    تربیت, توثیق = [], []
+    ہر قسم_نمبر میں torch.unique(نشان, sorted=True).tolist():
+        مقامات = torch.where(نشان == قسم_نمبر)[0]
+        اگر لمبائی(مقامات) <= validation_per_class:
+            اٹھاؤ ValueError("ہر قسم میں توثیق سے زیادہ تصاویر ضروری ہیں۔")
+        مقامات = مقامات[torch.randperm(لمبائی(مقامات), generator=تخم)]
+        توثیق.extend(مقامات[:validation_per_class].tolist())
+        تربیت.extend(مقامات[validation_per_class:].tolist())
+    تربیت = torch.tensor(تربیت, dtype=torch.long)
+    توثیق = torch.tensor(توثیق, dtype=torch.long)
+    واپس تربیت[torch.randperm(لمبائی(تربیت), generator=تخم)], توثیق[torch.randperm(لمبائی(توثیق), generator=تخم)]
+
+
+فنکشن تربیتی_پیمانے(تصاویر):
+    """صرف فراہم کردہ تربیتی تصاویر پر فی رنگ آبادی کے پیمانے نکالیں۔"""
+    اگر تصاویر.ndim != 4 یا تصاویر.shape[1] != 3 یا لمبائی(تصاویر) == 0:
+        اٹھاؤ ValueError("تصاویر کی شکل نمونے، ۳، بلندی، چوڑائی ہونی چاہیے۔")
+    عدد = تصاویر.to(torch.float64).div(255.0)
+    اوسط = عدد.mean(dim=(0, 2, 3))
+    انحراف = عدد.std(dim=(0, 2, 3), correction=0).clamp_min(1e-8)
+    واپس اوسط.tolist(), انحراف.tolist()
+
+
+کلاس تصویری_مجموعہ(Dataset):
+    """تیز حافظہ جاتی تصاویر؛ تربیت میں بیج کے مطابق تراش اور افقی پلٹ۔"""
+
+    فنکشن __init__(self, تصاویر, نشان, mean, std, training=False, seed=42):
+        اگر تصاویر.dtype != torch.uint8 یا تصاویر.ndim != 4 یا تصاویر.shape[1] != 3:
+            اٹھاؤ ValueError("تصاویر uint8 کی نمونے، ۳، بلندی، چوڑائی شکل میں دیں۔")
+        اگر لمبائی(تصاویر) != لمبائی(نشان):
+            اٹھاؤ ValueError("تصاویر اور نشان کی تعداد یکساں ہونی چاہیے۔")
+        self.تصاویر = تصاویر.contiguous()
+        self.نشان = torch.as_tensor(نشان, dtype=torch.long)
+        self.اوسط = torch.tensor(mean, dtype=torch.float32).view(3, 1, 1)
+        self.انحراف = torch.tensor(std, dtype=torch.float32).view(3, 1, 1)
+        اگر نہیں torch.isfinite(self.اوسط).all() یا نہیں torch.isfinite(self.انحراف).all() یا (self.انحراف <= 0).any():
+            اٹھاؤ ValueError("درست اوسط اور مثبت معیاری انحراف ضروری ہیں۔")
+        self.تربیتی = training
+        self.تخم = torch.Generator().manual_seed(seed)
+        self.نام = اردو_نام.copy()
+
+    فنکشن __len__(self):
+        واپس لمبائی(self.نشان)
+
+    فنکشن __getitem__(self, مقام):
+        تصویر = self.تصاویر[مقام]
+        اگر self.تربیتی:
+            بلندی, چوڑائی = تصویر.shape[-2:]
+            حاشیہ = max(1, بلندی // 12)
+            تصویر = بصری.pad(تصویر, حاشیہ, padding_mode="reflect")
+            بالا, بائیں = torch.randint(0, 2 * حاشیہ + 1, (2,), generator=self.تخم).tolist()
+            تصویر = تصویر[:, بالا:بالا + بلندی, بائیں:بائیں + چوڑائی]
+            اگر torch.rand((), generator=self.تخم).item() < 0.5:
+                تصویر = تصویر.flip(-1)
+        تصویر = (تصویر.to(torch.float32).div(255.0) - self.اوسط) / self.انحراف
+        واپس تصویر, self.نشان[مقام]
+
+
+فنکشن خام_پڑھو(جڑ, حصہ):
+    """Stanford binary layout میں چوڑائی/بلندی کی اصل ترتیب محفوظ رکھیں۔"""
+    جڑ = Path(جڑ) / "stl10_binary"
+    نشان = np.fromfile(جڑ / f"{حصہ}_y.bin", dtype=np.uint8).astype(np.int64) - 1
+    تصاویر = np.fromfile(جڑ / f"{حصہ}_X.bin", dtype=np.uint8).reshape(-1, 3, 96, 96).transpose(0, 1, 3, 2)
+    اگر لمبائی(تصاویر) != لمبائی(نشان):
+        اٹھاؤ ValueError("اصل تصاویر اور نشان کی تعداد مختلف ہے۔")
+    واپس torch.from_numpy(np.ascontiguousarray(تصاویر)), torch.from_numpy(نشان)
+
+
+فنکشن جسامت_بدلو(تصاویر, image_size):
+    اگر تصاویر.shape[-2:] == (image_size, image_size):
+        واپس تصاویر.contiguous()
+    واپس torch.cat([بصری.resize(حصہ, [image_size, image_size], antialias=True) ہر حصہ میں تصاویر.split(256)], dim=0).contiguous()
+
+
+فنکشن ڈیٹا_تیار_کرو(root, image_size=48, seed=42, download=False):
+    """Return datasets, split indices, Urdu/English labels and training-only scales.
+
+    Keys: train, validation, test, train_indices, validation_indices, class_names,
+    class_names_urdu, mean, std, image_size, provenance. Workers must remain zero
+    for the current single-process UrduPy experiment and seeded augmentation.
+    """
+    اگر نہیں isinstance(image_size, int) یا image_size < 16 یا image_size > 96:
+        اٹھاؤ ValueError("تصویر کی جسامت ۱۶ سے ۹۶ کے درمیان صحیح عدد ہونی چاہیے۔")
+    جڑ = Path(root).resolve()
+    اگر download:
+        راستہ = Path(__file__).with_name("حاصل_کرو.py")
+        تفصیل = importlib.util.spec_from_file_location("_stl10_download", راستہ)
+        معاون = importlib.util.module_from_spec(تفصیل)
+        تفصیل.loader.exec_module(معاون)
+        معاون.حاصل_کرو(جڑ)
+    ہر نام, جانچ میں فائل_جانچ.items():
+        اگر نہیں check_integrity(جڑ / "stl10_binary" / نام, جانچ):
+            اٹھاؤ RuntimeError(f"سرکاری اعداد موجود نہیں یا فائل خراب ہے: {نام}؛ پہلے حاصل_کرو.py چلائیں۔")
+    ذخیرہ = جڑ / f"تصاویر_{image_size}_v1.pt"
+    اگر ذخیرہ.exists():
+        اعداد = torch.load(ذخیرہ, map_location="cpu", weights_only=True)
+        اگر اعداد.get("source_md5") != فائل_جانچ یا اعداد.get("image_size") != image_size:
+            اٹھاؤ RuntimeError("حافظہ جاتی تصاویر کی شناخت درست نہیں؛ ذخیرہ دوبارہ بنائیں۔")
+    ورنہ:
+        تربیتی_تصاویر, تربیتی_نشان = خام_پڑھو(جڑ, "train")
+        آزمائشی_تصاویر, آزمائشی_نشان = خام_پڑھو(جڑ, "test")
+        اعداد = {
+            "train_images": جسامت_بدلو(تربیتی_تصاویر, image_size),
+            "train_labels": تربیتی_نشان,
+            "test_images": جسامت_بدلو(آزمائشی_تصاویر, image_size),
+            "test_labels": آزمائشی_نشان,
+            "source_md5": فائل_جانچ,
+            "image_size": image_size,
+        }
+        torch.save(اعداد, ذخیرہ)
+    اگر اعداد["train_images"].shape != (5000, 3, image_size, image_size) یا اعداد["test_images"].shape != (8000, 3, image_size, image_size):
+        اٹھاؤ RuntimeError("سرکاری اعداد کی متوقع تصویر تعداد یا جسامت مختلف ہے۔")
+    اگر نہیں torch.equal(torch.bincount(اعداد["train_labels"], minlength=10), torch.full((10,), 500)):
+        اٹھاؤ RuntimeError("تربیت میں ہر قسم کی ۵۰۰ تصاویر ہونی چاہییں۔")
+    اگر نہیں torch.equal(torch.bincount(اعداد["test_labels"], minlength=10), torch.full((10,), 800)):
+        اٹھاؤ RuntimeError("آخری آزمائش میں ہر قسم کی ۸۰۰ تصاویر ہونی چاہییں۔")
+    تربیت, توثیق = طبقاتی_تقسیم(اعداد["train_labels"], seed=seed)
+    اوسط, انحراف = تربیتی_پیمانے(اعداد["train_images"][تربیت])
+    واپس {
+        "train": تصویری_مجموعہ(اعداد["train_images"][تربیت], اعداد["train_labels"][تربیت], اوسط, انحراف, training=True, seed=seed),
+        "validation": تصویری_مجموعہ(اعداد["train_images"][توثیق], اعداد["train_labels"][توثیق], اوسط, انحراف),
+        "test": تصویری_مجموعہ(اعداد["test_images"], اعداد["test_labels"], اوسط, انحراف),
+        "train_indices": تربیت.tolist(),
+        "validation_indices": توثیق.tolist(),
+        "class_names": انگریزی_نام.copy(),
+        "class_names_urdu": اردو_نام.copy(),
+        "mean": اوسط,
+        "std": انحراف,
+        "image_size": image_size,
+        "provenance": {"dataset": "STL-10", "official_train": 5000, "fit_train": 4000, "validation": 1000, "test": 8000, "image_resolution_original": 96, "archive_md5_expected": "91f7769df0f17e558f3565bffb0c7dfb", "full_archive_verified": False, "four_labeled_files_verified": True, "file_md5": فائل_جانچ.copy(), "normalization_fit": "train4000_only", "unlabeled_used": False, "standard_ten_fold_protocol": False, "augmentation": "seeded reflect-pad random crop and horizontal flip; train only", "resize": "bilinear antialiased uint8 torchvision tensor resize"},
+    }

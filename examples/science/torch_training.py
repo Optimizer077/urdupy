@@ -1,0 +1,26 @@
+import torch
+
+class خطی_ماڈل(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.layer = torch.nn.Linear(2, 1, bias=False, dtype=torch.float64, device="cpu")
+        with torch.no_grad():
+            self.layer.weight.copy_(torch.tensor([[1.0, -1.0]], dtype=torch.float64))
+
+    def forward(self, x):
+        return self.layer(x)
+
+MODEL = خطی_ماڈل()
+INPUT = torch.tensor([[1.0, 2.0]], dtype=torch.float64, device="cpu")
+OPTIMIZER = torch.optim.SGD(MODEL.parameters(), lr=0.1)
+OPTIMIZER.zero_grad()
+OUTPUT = MODEL(INPUT)
+LOSS = OUTPUT.square().sum()
+LOSS.backward()
+GRADIENT = MODEL.layer.weight.grad.detach().clone()
+WEIGHTS_BEFORE = MODEL.layer.weight.detach().clone()
+OPTIMIZER.step()
+WEIGHTS_AFTER = MODEL.layer.weight.detach().clone()
+with torch.no_grad():
+    RESULT = MODEL(INPUT)
+print(OUTPUT.detach().tolist(), LOSS.item(), GRADIENT.tolist(), WEIGHTS_AFTER.tolist())

@@ -1,0 +1,47 @@
+"""محفوظ اردو ریس نیٹ سے اپنی تصویر کی جماعت بتائیں۔"""
+
+درآمد argparse
+درآمد json
+سے pathlib درآمد Path
+
+درآمد torch
+سے PIL درآمد Image
+سے torchvision درآمد transforms
+سے ماڈل درآمد ریسنیٹ۱۸
+
+
+فنکشن تصویر_تیار_کرو(راستہ, اطلاع):
+    """اصل اعداد کی طرح uint8 ٹینسر چھوٹا کریں، پھر نارملائز کریں۔"""
+    تبدیلی = transforms.Compose([
+        transforms.PILToTensor(),
+        transforms.Resize((اطلاع["image_size"], اطلاع["image_size"]), antialias=سچ),
+        transforms.ConvertImageDtype(torch.float32),
+        transforms.Normalize(اطلاع["mean"], اطلاع["std"]),
+    ])
+    ساتھ Image.open(راستہ) بطور تصویر:
+        واپس تبدیلی(تصویر.convert("RGB")).unsqueeze(0)
+
+
+فنکشن پیشگوئی_کرو(image_path, results, count=3):
+    results = Path(results)
+    report = json.loads((results / "خلاصہ.json").read_text(encoding="utf-8"))
+    model = ریسنیٹ۱۸(num_classes=لمبائی(report["class_names_urdu"]), base_width=report["base_width"])
+    model.load_state_dict(torch.load(results / "بہترین_وزن.pt", map_location="cpu", weights_only=سچ))
+    model.eval()
+    tensor = تصویر_تیار_کرو(image_path, report)
+    ساتھ torch.inference_mode():
+        probabilities, indices = model(tensor).softmax(dim=1).topk(min(count, 10), dim=1)
+    واپس [{"جماعت": report["class_names_urdu"][index], "امکان": probability}
+           ہر index, probability میں zip(indices[0].tolist(), probabilities[0].tolist())]
+
+
+فنکشن چلائیں():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("image", type=Path, help="تصویر کا راستہ")
+    parser.add_argument("--results", type=Path, default=Path(__file__).resolve().parent / "نتائج" / "ابتدائی_تربیت")
+    args = parser.parse_args()
+    دکھاؤ(json.dumps(پیشگوئی_کرو(args.image, args.results), ensure_ascii=جھوٹ, indent=2))
+
+
+اگر __name__ == "__main__":
+    چلائیں()

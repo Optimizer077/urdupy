@@ -1,0 +1,22 @@
+"""محفوظ اصل نتائج سے اردو خاکے دوبارہ بنائیں؛ تربیت نہیں ہوتی۔"""
+
+درآمد argparse
+درآمد json
+سے pathlib درآمد Path
+سے خاکے درآمد خاکے_بناؤ
+
+
+فنکشن چلائیں():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("results", type=Path, help="محفوظ نتائج کا فولڈر")
+    args = parser.parse_args()
+    history = json.loads((args.results / "تاریخ.json").read_text(encoding="utf-8"))
+    report = json.loads((args.results / "خلاصہ.json").read_text(encoding="utf-8"))
+    predictions = json.loads((args.results / "پیشگوئیاں.json").read_text(encoding="utf-8"))
+    paths = خاکے_بناؤ(history, report, predictions, args.results / "خاکے")
+    ہر path میں paths:
+        دکھاؤ(path)
+
+
+اگر __name__ == "__main__":
+    چلائیں()

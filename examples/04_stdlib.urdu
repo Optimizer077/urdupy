@@ -1,0 +1,15 @@
+# بیرونی API کے اصل نام برقرار رہتے ہیں
+درآمد math بطور ریاضی
+سے statistics درآمد mean بطور اوسط
+سے collections درآمد Counter
+
+اعداد = [2, 4, 6]
+حروف = Counter("aba")
+RESULT = {
+    "root": ریاضی.sqrt(81),
+    "mean": اوسط(اعداد),
+    "counts": dict(حروف),
+    "length": لمبائی(اعداد),
+}
+دکھاؤ(RESULT["root"], RESULT["mean"])
+دکھاؤ(RESULT["counts"], RESULT["length"])

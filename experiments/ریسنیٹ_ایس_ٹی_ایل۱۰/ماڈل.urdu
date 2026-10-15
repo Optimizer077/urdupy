@@ -1,0 +1,95 @@
+"""ایس ٹی ایل ۱۰ کے لیے چھوٹی تصاویر والا ریسنیٹ ۱۸۔
+
+آٹھ بنیادی بلاک، چار مرحلے، اور ہر مرحلے میں دو بلاک ہیں۔
+ابتدا میں ۳×۳ پیچشی تہہ ہے؛ ابتدائی maxpool استعمال نہیں ہوتا۔
+بنیادی چوڑائی ۱۶ سی پی یو کے لیے ہے؛ ۶۴ سے مکمل چوڑائی منتخب کریں۔
+"""
+
+درآمد torch
+
+
+کلاس بنیادی_بلاک(torch.nn.Module):
+    """دو پیچشی تہوں کا باقیاتی بلاک؛ ضرورت پر راستے میں ۱×۱ پیچش۔"""
+
+    فنکشن __init__(خود, آنے_والے, جانے_والے, قدم=1):
+        super().__init__()
+        خود.پہلی_پیچش = torch.nn.Conv2d(
+            آنے_والے, جانے_والے, kernel_size=3, stride=قدم,
+            padding=1, bias=جھوٹ,
+        )
+        خود.پہلی_معیاری_بندی = torch.nn.BatchNorm2d(جانے_والے)
+        خود.فعالساز = torch.nn.ReLU(inplace=سچ)
+        خود.دوسری_پیچش = torch.nn.Conv2d(
+            جانے_والے, جانے_والے, kernel_size=3, stride=1,
+            padding=1, bias=جھوٹ,
+        )
+        خود.دوسری_معیاری_بندی = torch.nn.BatchNorm2d(جانے_والے)
+        اگر قدم != 1 یا آنے_والے != جانے_والے:
+            خود.راستہ = torch.nn.Sequential(
+                torch.nn.Conv2d(
+                    آنے_والے, جانے_والے, kernel_size=1,
+                    stride=قدم, bias=جھوٹ,
+                ),
+                torch.nn.BatchNorm2d(جانے_والے),
+            )
+        ورنہ:
+            خود.راستہ = torch.nn.Identity()
+
+    فنکشن forward(خود, تصویر):
+        باقیات = خود.راستہ(تصویر)
+        نتیجہ = خود.فعالساز(خود.پہلی_معیاری_بندی(خود.پہلی_پیچش(تصویر)))
+        نتیجہ = خود.دوسری_معیاری_بندی(خود.دوسری_پیچش(نتیجہ))
+        واپس خود.فعالساز(نتیجہ + باقیات)
+
+
+کلاس ریس_نیٹ(torch.nn.Module):
+    """۳×۳ ابتدائی تہہ، [۲،۲،۲،۲] بلاک، اوسط پول، دس زمرے۔"""
+
+    فنکشن __init__(خود, num_classes=10, base_width=16):
+        super().__init__()
+        اگر نہیں isinstance(num_classes, int) یا isinstance(num_classes, bool) یا num_classes <= 0:
+            اٹھاؤ ValueError("زمروں کی تعداد مثبت صحیح عدد ہونی چاہیے")
+        اگر نہیں isinstance(base_width, int) یا isinstance(base_width, bool) یا base_width <= 0:
+            اٹھاؤ ValueError("بنیادی چوڑائی مثبت صحیح عدد ہونی چاہیے")
+        خود.بنیادی_چوڑائی = base_width
+        خود.زمرے = num_classes
+        خود.موجودہ_چینل = base_width
+        خود.ابتدائی_پیچش = torch.nn.Conv2d(
+            3, base_width, kernel_size=3, stride=1, padding=1, bias=جھوٹ,
+        )
+        خود.ابتدائی_معیاری_بندی = torch.nn.BatchNorm2d(base_width)
+        خود.فعالساز = torch.nn.ReLU(inplace=سچ)
+        خود.پہلا_مرحلہ = خود.مرحلہ_بناؤ(base_width, 1)
+        خود.دوسرا_مرحلہ = خود.مرحلہ_بناؤ(base_width * 2, 2)
+        خود.تیسرا_مرحلہ = خود.مرحلہ_بناؤ(base_width * 4, 2)
+        خود.چوتھا_مرحلہ = خود.مرحلہ_بناؤ(base_width * 8, 2)
+        خود.اوسط_پول = torch.nn.AdaptiveAvgPool2d((1, 1))
+        خود.درجہ_بند = torch.nn.Linear(base_width * 8, num_classes)
+        خود.ابتدائی_وزن_بھراؤ()
+
+    فنکشن مرحلہ_بناؤ(خود, چینل, قدم):
+        پہلا = بنیادی_بلاک(خود.موجودہ_چینل, چینل, قدم)
+        خود.موجودہ_چینل = چینل
+        واپس torch.nn.Sequential(پہلا, بنیادی_بلاک(چینل, چینل))
+
+    فنکشن ابتدائی_وزن_بھراؤ(خود):
+        ہر تہہ میں خود.modules():
+            اگر isinstance(تہہ, torch.nn.Conv2d):
+                torch.nn.init.kaiming_normal_(تہہ.weight, mode="fan_out", nonlinearity="relu")
+            ورنہ_اگر isinstance(تہہ, torch.nn.BatchNorm2d):
+                torch.nn.init.ones_(تہہ.weight)
+                torch.nn.init.zeros_(تہہ.bias)
+
+    فنکشن forward(خود, تصویر):
+        نتیجہ = خود.فعالساز(خود.ابتدائی_معیاری_بندی(خود.ابتدائی_پیچش(تصویر)))
+        نتیجہ = خود.پہلا_مرحلہ(نتیجہ)
+        نتیجہ = خود.دوسرا_مرحلہ(نتیجہ)
+        نتیجہ = خود.تیسرا_مرحلہ(نتیجہ)
+        نتیجہ = خود.چوتھا_مرحلہ(نتیجہ)
+        نتیجہ = torch.flatten(خود.اوسط_پول(نتیجہ), 1)
+        واپس خود.درجہ_بند(نتیجہ)
+
+
+فنکشن ریسنیٹ۱۸(num_classes=10, base_width=16):
+    """دس زمروں کا ریسنیٹ بنائیں؛ اردو طبقے اور اصلی PyTorch اشیا۔"""
+    واپس ریس_نیٹ(num_classes=num_classes, base_width=base_width)

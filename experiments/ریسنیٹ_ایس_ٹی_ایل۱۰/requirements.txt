@@ -1,0 +1,8 @@
+# Optional experiment dependencies, separate from UrduPy's dependency-free core.
+torch==2.14.1
+torchvision==0.29.1
+numpy==2.5.4
+Pillow==12.3.0
+matplotlib==3.11.2
+arabic-reshaper==3.0.1
+python-bidi==0.6.11

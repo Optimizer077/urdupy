@@ -1,0 +1,10 @@
+# Reproducible direct dependencies for the recorded Windows CPython 3.13 CPU lab.
+# Install torch/torchvision separately from the official CPU index; see
+# compatibility-torch-cpu.txt and docs/ai-compatibility.md. This is NOT a base dependency list.
+numpy==2.5.4
+Pillow==12.3.0
+opencv-python-headless==5.0.0.93
+transformers==5.19.0
+tokenizers==0.23.3
+huggingface-hub==2.2.0
+safetensors==0.8.0

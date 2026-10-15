@@ -1,0 +1,46 @@
+name: Core and local package
+
+"on":
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    name: ${{ matrix.os }} / CPython ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python: ["3.12", "3.13", "3.14", "3.15"]
+    env:
+      PYTHONUTF8: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - name: Select CPython
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Inventory
+        run: python -c "import sys, platform; print(sys.version); print(platform.platform()); print(platform.machine())"
+      - name: Install small build tools
+        run: python -m pip install "setuptools>=77.0.3" build
+      - name: Core regression suite
+        run: python -X utf8 -m unittest discover -s tests -v
+      - name: Bilingual examples
+        run: python examples/verify_examples.py
+      - name: Build wheel and source archive
+        run: python -m build --no-isolation
+      - name: Install local wheel
+        run: python -c "import pathlib, subprocess, sys; wheel = next(pathlib.Path('dist').glob('*.whl')); subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--no-deps', str(wheel)])"
+      - name: Verify installed entry points outside checkout imports
+        run: |
+          python -I -m urdupy --version
+          python -I -m urdupy --help
+          python -m pip check

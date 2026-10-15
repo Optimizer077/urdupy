@@ -1,0 +1,14 @@
+import numpy as np
+import cv2
+import torch
+
+BGR = np.array([[[10, 20, 30], [40, 50, 60]]], dtype=np.uint8)
+RGB = cv2.cvtColor(BGR, cv2.COLOR_BGR2RGB)
+# رنگ اور dtype بدلنے کے بعد الگ contiguous array استعمال ہوتا ہے
+ARRAY = np.ascontiguousarray(RGB.astype(np.float32) / 255.0)
+TENSOR = torch.from_numpy(ARRAY).permute(2, 0, 1).contiguous().unsqueeze(0)
+MODEL = torch.nn.Conv2d(3, 1, 1, bias=False, device="cpu")
+with torch.no_grad():
+    MODEL.weight.copy_(torch.tensor([[[[1.0]], [[2.0]], [[3.0]]]]))
+    RESULT = MODEL(TENSOR)
+print(list(TENSOR.shape), str(TENSOR.dtype), RESULT.tolist())

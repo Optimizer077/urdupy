@@ -1,0 +1,4 @@
+# Use --index-url https://download.pytorch.org/whl/cpu for this separate install.
+# Matching pair verified from the upstream torchvision 0.29.1 release notes.
+torch==2.14.1+cpu
+torchvision==0.29.1+cpu

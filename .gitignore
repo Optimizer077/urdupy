@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.venv*/
+.runtimes/
+.verification/
+build/
+dist/
+*.egg-info/
+.coverage
+runs/
+experiments/**/ڈیٹاسیٹ/
+experiments/**/نتائج/
+# Inactive partial-download scratch from URD-028; active source is experiments/.
+experiment/

@@ -1,0 +1,109 @@
+{
+  "timestamp_utc": "2026-10-15T02:01:07.610793+00:00",
+  "python": "3.13.13 | packaged by Anaconda, Inc. | (main, Apr 14 2026, 06:12:50) [MSC v.1942 64 bit (AMD64)]",
+  "executable": "E:\\Personal_tries\\Free_Todo\\urdupy\\.venv-ai\\Scripts\\python.exe",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "urdupy_version": "0.1.0a1",
+  "language_spec_version": "1.0-local",
+  "packages": {
+    "numpy": "2.5.4",
+    "Pillow": "12.3.0",
+    "opencv-python-headless": "5.0.0.93",
+    "opencv-python": null,
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "transformers": "5.19.0",
+    "tokenizers": "0.23.3",
+    "huggingface-hub": "2.2.0",
+    "safetensors": "0.8.0",
+    "scipy": null,
+    "pandas": null,
+    "scikit-learn": null
+  },
+  "tests_run": 11,
+  "passed": 11,
+  "skipped": 0,
+  "failures": 0,
+  "errors": 0,
+  "records": [
+    {
+      "test": "compatibility.compat_arrays.NumPyCompatibility.test_ai001_broadcast_shape_dtype_indexing",
+      "status": "PASS",
+      "seconds": 0.094643,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_frameworks.FrameworkCompatibility.test_ai005_transformers_tiny_config_model_completely_offline",
+      "status": "PASS",
+      "seconds": 7.23281,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_frameworks.FrameworkCompatibility.test_torchvision_transforms_and_model_without_pretrained_weights",
+      "status": "PASS",
+      "seconds": 0.16985,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_torch.TorchCompatibility.test_ai003_module_autograd_and_analytic_sgd_step",
+      "status": "PASS",
+      "seconds": 0.009697,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_torch.TorchCompatibility.test_ai003_temporary_state_dict_roundtrip",
+      "status": "PASS",
+      "seconds": 0.024483,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_torch.TorchCompatibility.test_numpy_tensor_sharing_is_real_for_the_explicit_contiguous_array",
+      "status": "PASS",
+      "seconds": 0.001928,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_training.NeuralTraining.test_multiepoch_learning_python_equivalence_and_checkpoint",
+      "status": "PASS",
+      "seconds": 0.824541,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_training.NeuralTraining.test_training_rejects_nonpositive_epochs_and_data_is_seeded",
+      "status": "PASS",
+      "seconds": 0.017438,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_vision.VisionCompatibility.test_ai002_opencv_color_gray_and_resize",
+      "status": "PASS",
+      "seconds": 0.023428,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_vision.VisionCompatibility.test_ai002_pillow_local_png_roundtrip",
+      "status": "PASS",
+      "seconds": 0.011841,
+      "detail": null
+    },
+    {
+      "test": "compatibility.compat_vision.VisionCompatibility.test_ai004_numpy_opencv_torch_channels_and_model",
+      "status": "PASS",
+      "seconds": 0.011039,
+      "detail": null
+    }
+  ],
+  "offline_policy": "local configs/synthetic data; Python socket APIs guarded during each test",
+  "device_policy": "CPU; no accelerator validation claimed",
+  "runtime": "urdupy.runtime.execute_source",
+  "imported_versions": {
+    "numpy": "2.5.4",
+    "PIL": "12.3.0",
+    "cv2": "5.0.0",
+    "torch": "2.14.1+cpu",
+    "torchvision": "0.29.1+cpu",
+    "transformers": "5.19.0"
+  },
+  "status": "PASS"
+}

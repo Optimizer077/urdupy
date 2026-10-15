@@ -1,0 +1,25 @@
+include AGENTS.md
+include CHANGELOG.md
+include CONTRIBUTING.md
+include LICENSE
+include README.md
+include SECURITY.md
+include pyproject.toml
+recursive-include docs *.md *.py *.svg
+recursive-include examples *.md *.py *.urdu
+recursive-include tests *.py *.json
+recursive-include tools *.py
+recursive-include requirements *.txt *.md
+recursive-include editor *.json *.md LICENSE
+recursive-include .github/workflows *.yml *.yaml
+prune .runtimes
+prune .venv
+prune .venv*
+prune .git
+prune .pytest_cache
+prune .mypy_cache
+prune build
+prune dist
+global-exclude .env .env.*
+global-exclude *.py[cod]
+global-exclude __pycache__

@@ -1,0 +1,34 @@
+# Python کے protocol نام اور decorators اپنی اصل شکل میں
+کلاس ٹوکری:
+    فنکشن __init__(self, اشیا=کچھ_نہیں):
+        self.اشیا = [] اگر اشیا ہے کچھ_نہیں ورنہ list(اشیا)
+
+    فنکشن __len__(self):
+        واپس len(self.اشیا)
+
+    فنکشن __iter__(self):
+        واپس iter(self.اشیا)
+
+    @classmethod
+    فنکشن بناؤ(cls, *اشیا):
+        واپس cls(اشیا)
+
+    @staticmethod
+    فنکشن موزوں(عدد):
+        واپس عدد >= 0
+
+    @property
+    فنکشن تعداد(self):
+        واپس len(self.اشیا)
+
+چیزیں = ٹوکری.بناؤ("کتاب", "قلم")
+RESULT = {
+    "items": فہرست(چیزیں),
+    "length": لمبائی(چیزیں),
+    "property": چیزیں.تعداد,
+    "valid": ٹوکری.موزوں(3),
+    "empty_length": len(ٹوکری()),
+    "instance": isinstance(چیزیں, ٹوکری),
+}
+دکھاؤ(RESULT["items"], RESULT["length"])
+دکھاؤ(RESULT["valid"], RESULT["instance"])

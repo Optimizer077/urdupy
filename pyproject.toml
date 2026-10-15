@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "urdupy-design-lab"
+dynamic = ["version"]
+description = "An Urdu-first language frontend for CPython with ordinary Python interoperability"
+readme = "README.md"
+requires-python = ">=3.12,<3.16"
+license = "MIT"
+license-files = ["LICENSE"]
+keywords = ["urdu", "language", "python", "education", "compiler"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Topic :: Software Development :: Compilers",
+]
+dependencies = []
+
+[project.optional-dependencies]
+# Pip resolves these when the user selects .[science] or .[ai].
+# Torch build/index selection stays with pip, preserving compatible CUDA/CPU builds.
+science = [
+  "numpy==2.5.4",
+  "Pillow==12.3.0",
+  "opencv-python-headless==5.0.0.93",
+]
+ai = [
+  "numpy==2.5.4",
+  "Pillow==12.3.0",
+  "opencv-python-headless==5.0.0.93",
+  "torch==2.14.1",
+  "torchvision==0.29.1",
+  "transformers==5.19.0",
+  "matplotlib==3.11.2",
+  "arabic-reshaper==3.0.1",
+  "python-bidi==0.6.11",
+]
+
+[project.scripts]
+urdupy = "urdupy.cli:main"
+
+[tool.setuptools]
+include-package-data = false
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["urdupy", "urdupy.*"]
+namespaces = false
+
+[tool.setuptools.dynamic]
+version = {attr = "urdupy.__version__"}

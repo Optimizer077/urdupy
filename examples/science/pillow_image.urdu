@@ -1,0 +1,12 @@
+سے io درآمد BytesIO
+سے PIL درآمد Image
+درآمد numpy بطور np
+
+IMAGE = Image.new("RGB", (2, 1))
+IMAGE.putdata([(30, 20, 10), (60, 50, 40)])
+BUFFER = BytesIO()
+IMAGE.save(BUFFER, format="PNG")
+BUFFER.seek(0)
+ساتھ Image.open(BUFFER) بطور تصویر:
+    RESULT = np.array(تصویر)
+دکھاؤ(RESULT.tolist(), RESULT.dtype.name)

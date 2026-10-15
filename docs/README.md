@@ -7,6 +7,7 @@ Start at the top and go down. Each page is short and links onward.
 | Page | Read it when you want to… |
 |---|---|
 | [Install](install.md) | Install from this checkout, a wheel, or with the `science` / `ai` extras. |
+| [مکمل اردو](complete-urdu.md) | Write dependency imports, methods, protocols, arguments and values without Latin letters. |
 | [Tutorial](tutorial.md) | Learn step by step: output, variables, conditions, loops, functions. |
 | [Language reference](language-reference.md) | Look up all 35 keywords, 2 contextual keywords and 15 built-in aliases. |
 | [Language design](language-design.md) | Understand functions, parameters, closures, methods, and return vs. print. |
@@ -19,6 +20,7 @@ Start at the top and go down. Each page is short and links onward.
 | [Using Python libraries](python-libraries.md) | Use NumPy, OpenCV, PyTorch, Transformers; choose CPU/GPU; name files in Urdu; fix import problems. |
 | [AI compatibility](ai-compatibility.md) | See exactly which library versions and operations were tested. |
 | [Science examples](../examples/science/README.md) | Run paired `.urdu` / `.py` examples, including neural-network training. |
+| [مکمل اردو مثالیں](../examples/مکمل_اردو/README.md) | Run six entirely Urdu scientific/AI programs. |
 
 ## Understand the internals
 

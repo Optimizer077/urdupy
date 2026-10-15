@@ -47,6 +47,7 @@ ai = [
 
 [project.scripts]
 urdupy = "urdupy.cli:main"
+"اردوپائی" = "urdupy.cli:urdu_main"
 
 [tool.setuptools]
 include-package-data = false

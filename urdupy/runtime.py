@@ -30,7 +30,7 @@ def read_source(path):
     return Path(path).read_bytes().decode("utf-8")
 
 
-def make_builtins(base=None):
+def make_builtins(base=None, *, complete=False):
     """Return an independent dictionary whose aliases are actual built-in objects."""
     if base is None:
         base = vars(builtins)
@@ -42,11 +42,17 @@ def make_builtins(base=None):
     for alias, name in BUILTIN_ALIASES.items():
         if name in result:
             result.setdefault(alias, result[name])
+    if complete:
+        from .urdu_catalog import VALUE_ALIASES
+        from .urdu_surface import original_text
+        for alias, value in VALUE_ALIASES.items():
+            result.setdefault(alias, value)
+        result.setdefault("اصل_متن", original_text)
     return result
 
 
-def prepare_namespace(namespace, filename):
-    namespace["__builtins__"] = make_builtins(namespace.get("__builtins__"))
+def prepare_namespace(namespace, filename, *, complete=False):
+    namespace["__builtins__"] = make_builtins(namespace.get("__builtins__"), complete=complete)
     namespace.setdefault("__file__", str(filename))
     namespace.setdefault("__package__", None)
     return namespace
@@ -100,7 +106,8 @@ def execute_source(source, filename="<urdupy>", globals=None, *, install_importe
     else:
         namespace = globals
         namespace.setdefault("__name__", "__urdupy__")
-    prepare_namespace(namespace, filename)
+    from .urdu_surface import enabled
+    prepare_namespace(namespace, filename, complete=enabled(source))
     from .importer import install_importer as enable_importer
 
     hook = enable_importer() if install_importer else nullcontext()

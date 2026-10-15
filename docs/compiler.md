@@ -1,5 +1,13 @@
 # Compiler and source locations
 
+The additive [complete Urdu mode](complete-urdu.md), specified in
+[ADR-015](adr/015-complete-urdu-surface.md), enables a reserved library spelling
+catalog with a leading `# اردوپائی: مکمل` comment. It contributes original-source
+span edits before debug-label reconstruction and source-map generation. Imports
+bind native modules; names, stores, parameters, keyword labels and attributes
+lower consistently. No dependency imports run during translation or checking.
+Without the directive the original compiler contract below remains in force.
+
 UrduPy's prerelease compiler runs through CPython. The production entry points
 live in `urdupy.compiler`; the older `urdupy.experimental` laboratory retains its
 Phase 1 restrictions for reproducible historical evidence.

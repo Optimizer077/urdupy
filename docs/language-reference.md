@@ -1,5 +1,10 @@
 # UrduPy local language reference
 
+The original keyword/builtin contract below remains compatible. The separately
+opted-in [complete Urdu surface](complete-urdu.md) also supplies library spellings,
+native protocol names and a total identifier/text encoding; see ADR-015. Its
+reserved vocabulary applies only to files with `# اردوپائی: مکمل` at the start.
+
 This reference describes the production frontend's **`1.0-local`** technical
 contract for CPython **3.12–3.15**.
 Package and language versions are separate; see [stability](stability.md).

@@ -1,9 +1,15 @@
 # Using Python libraries (NumPy, OpenCV, PyTorch, …) from UrduPy
 
+For an entirely Urdu dependency surface, use the explicit
+[`# اردوپائی: مکمل` mode](complete-urdu.md). It includes native model protocols,
+keyword arguments, readable aliases and exact spellings for unlisted APIs.
+This page documents the original mixed-language interoperability mode.
+
 **Short version:** there is no binding layer to set up. `درآمد torch` *is*
 `import torch`, executed by the same CPython interpreter that runs `urdupy`.
 If `python -c "import torch"` works in an environment, then `درآمد torch` works
-in that same environment. UrduPy never wraps, renames or re-exports a library.
+in that same environment. UrduPy uses the original library objects. The complete
+mode changes source spellings; it does not rename the native dependency itself.
 
 ```mermaid
 flowchart LR

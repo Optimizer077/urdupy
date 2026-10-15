@@ -34,9 +34,10 @@ class UrduLoader(importlib.abc.SourceLoader):
     def exec_module(self, module):
         from .compiler import compile_urdu
         from .runtime import prepare_namespace, source_context
+        from .urdu_surface import enabled
         source = self.get_source(module.__name__)
         code = compile_urdu(source, self.path)
-        prepare_namespace(module.__dict__, self.path)
+        prepare_namespace(module.__dict__, self.path, complete=enabled(source))
         with source_context(source, self.path):
             exec(code, module.__dict__)
 

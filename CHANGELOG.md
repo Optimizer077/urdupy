@@ -1,5 +1,20 @@
 # Changelog
 
+## Unreleased — Complete Urdu dependency surface (2026-10-15)
+
+- Added opt-in `# اردوپائی: مکمل` mode: imports, attributes, parameters, keyword
+  arguments, builtins and native class protocols can use Urdu spellings.
+  Existing source without the directive retains its behavior.
+- Added 763 curated spellings and lossless Urdu-digit spellings for all other
+  identifiers and literal strings. Arrays, tensors, modules and autograd stay
+  native; dependency messages/data are not implicitly translated.
+- Added `اردوپائی`: Urdu commands, discovery and explicit local dependency installs.
+- Six zero-Latin-letter examples cover NumPy, vision, SGD/AdamW, checkpoints,
+  offline BERT, ResNet-18 and Urdu graphs. Native behavior is tested separately.
+- Fixed incomplete parenthesized Urdu from-imports in the console. Encoded
+  keyword-shaped native exports and relative module paths remain accessible.
+- Final test/artifact evidence is recorded in the URD-031 handoff.
+
 ## Unreleased — Documentation and diagrams (2026-10-15)
 
 - Rewrote `README.md` with a banner, a side-by-side Urdu/Python example, a

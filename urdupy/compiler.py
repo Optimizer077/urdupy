@@ -64,6 +64,7 @@ def _word(item):
 
 
 def _from_delimiter(tokens, start):
+    fallback = None
     end = start
     while end < len(tokens) and tokens[end].type != tokenize.NEWLINE and tokens[end].string != ";":
         end += 1
@@ -88,10 +89,19 @@ def _from_delimiter(tokens, start):
         try:
             tree = ast.parse("from " + path + " import " + " ".join(words))
         except SyntaxError:
+            # An incomplete parenthesized import is valid interactive input.
+            # Validate the path independently so codeop can see the translated
+            # import delimiter and request another line rather than reject it.
+            try:
+                tree = ast.parse("from " + path + " import __urdupy_probe")
+            except SyntaxError:
+                continue
+            if words and words[0] == "(" and words.count("(") > words.count(")"):
+                fallback = candidate
             continue
         if len(tree.body) == 1 and isinstance(tree.body[0], ast.ImportFrom):
             return candidate
-    return None
+    return fallback
 
 
 def _match_block_indent(tokens, start):
@@ -285,6 +295,8 @@ def translate_with_map(source: str, filename: str = "<urdupy>") -> Translation:
     # A translated debug expression must still print the original source label.
     # Explicit constant fields work with raw strings, quote reuse, comments and
     # nested fields, and preserve semantics in the intermediate Python as well.
+    from .urdu_surface import library_edits
+    replacements.extend(library_edits(source, filename, tokens, replacements))
     keyword_edits = tuple(replacements)
     for first, last in _template_ranges(tokens):
         if any(offset(first.start) <= start < offset(last.end) for start, _, _, _ in keyword_edits):
@@ -330,6 +342,28 @@ def translate(source: str, filename: str = "<urdupy>") -> str:
 
 
 def _validate_bindings(tree, mapping):
+    def escaped_binding(node, name):
+        from .urdu_surface import enabled
+        if not enabled(mapping.source):
+            return False
+        from .urdu_catalog import decode_identifier
+        candidates = [node]
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            candidates = [alias for alias in node.names if
+                          (alias.asname or (alias.name.split('.')[0] if isinstance(node, ast.Import) else alias.name)) == name]
+        starts = line_starts(mapping.text)
+        for candidate in candidates:
+            start = starts[candidate.lineno - 1] + byte_to_character(mapping.translated_line(candidate.lineno), candidate.col_offset)
+            end = starts[candidate.end_lineno - 1] + byte_to_character(mapping.translated_line(candidate.end_lineno), candidate.end_col_offset)
+            if mapping.text.startswith('\ufeff'):
+                start += int(candidate.lineno == 1)
+                end += int(candidate.end_lineno == 1)
+            for edit in mapping.edits:
+                if start <= edit.translated_start < end and edit.kind in {"library_identifier", "library_import"}:
+                    if decode_identifier(edit.original.split('.')[0]) == name:
+                        return True
+        return False
+
     for node in ast.walk(tree):
         names = []
         if isinstance(node, ast.Name):
@@ -349,7 +383,7 @@ def _validate_bindings(tree, mapping):
         elif isinstance(node, (ast.MatchAs, ast.MatchStar)) and node.name:
             names.append(node.name)
         for name in names:
-            if name in PRODUCTION_KEYWORDS:
+            if name in PRODUCTION_KEYWORDS and not escaped_binding(node, name):
                 row = node.lineno
                 column = byte_to_character(mapping.translated_line(row), node.col_offset)
                 error = SyntaxError(

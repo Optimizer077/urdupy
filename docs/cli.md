@@ -1,5 +1,12 @@
 # UrduPy command line and Python entry points
 
+The additional `اردوپائی` console uses Urdu help and commands: `چلاؤ`, `جانچو`,
+`ترجمہ`, `بیٹھک`, `نام` and explicit `نصب`. `نام نمپی` inspects that installed
+namespace; `نام --کتب_خانے` lists available module spellings without importing
+them. `بیٹھک` starts in complete Urdu mode. `نصب مصنوعی_ذہانت` runs pip for the
+local checkout's AI extra using the current interpreter. See the
+[Urdu guide](complete-urdu.md). The original CLI below remains supported.
+
 The installed `urdupy` console script and `python -m urdupy` call the same CLI.
 Use the latter to select an interpreter/environment explicitly.
 

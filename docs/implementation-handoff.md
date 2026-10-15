@@ -1,5 +1,11 @@
 # Complete local implementation handoff
 
+Latest additive work: [URD-031 complete Urdu dependency surface](urdu-only-handoff.md)
+adds 763 spellings, a total identifier/text encoding, Urdu console and six entirely
+Urdu examples. Current verification: 230 core tests on four clean installed
+minors, 19 offline AI tests, 13,975 namespace names; final artifacts under
+`dist/urdu-only/`. Earlier counts below are dated checkpoints.
+
 Date: 2026-10-15. Package **0.1.0a1**; language contract **1.0-local**.
 Project/package/command **UrduPy / urdupy**; local distribution
 **urdupy-design-lab**. This is the continuation requested after M0, not a rewrite

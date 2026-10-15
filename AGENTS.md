@@ -31,6 +31,20 @@
 
 ## 0. Mandatory Instructions for Every Agent
 
+> **URD-031 superseding scope (2026-10-15):** The maintainer explicitly requests
+> an Urdu-only programming surface, including PyTorch, NumPy and dependencies.
+> This supersedes the early non-goal against translated library APIs. Implement
+> an opt-in `# اردوپائی: مکمل` source mode with native backend objects, an Urdu
+> library vocabulary and a reversible Urdu spelling for arbitrary API identifiers.
+> Keep ordinary/mixed source behavior compatible. ADR-015 records this additive
+> interface; no public upload is implied. Baseline: 162 core tests and five example
+> pairs PASS on CPython 3.13.13, clean Git worktree. Integrator owns compiler,
+> runtime, shared tracking, ADR and integration. Catalog agent owns
+> `urdupy/urdu_catalog.py`; examples agent owns `examples/مکمل_اردو/` and
+> `tests/compatibility/compat_urdu_only.py`; CLI agent owns localized CLI changes
+> and dedicated CLI tests. Core tests use no optional dependencies. Rollback:
+> remove the opt-in mode and its additive catalog/CLI/examples, retaining old APIs.
+
 **Read this entire file before making any code change.** Treat it as the project's operational contract and persistent task tracker. Do not treat an attractive demo as proof of correctness. Make incremental, testable changes, and leave enough information for the next agent to resume safely.
 
 On each new session, **in order**:
@@ -881,8 +895,8 @@ Milestones are sequential at the integration level. Agents may research future w
 | First public release | Source public at [Optimizer077/urdupy](https://github.com/Optimizer077/urdupy); package **NOT PUBLISHED to PyPI**; local 0.1.0a1 alpha artifacts |
 | Latest stable CPython support | Core PASS on 3.12.13, 3.13.13, 3.14.6 and latest stable 3.15.0; Windows AMD64; metadata >=3.12,<3.16 |
 | Official PyPI project name | **UNVERIFIED** ownership/registerability; candidate endpoints returned HTTP 404 |
-| Core quick-test result | **159/159 PASS, zero skips on all four production minors**; preserved 57-test M0 baseline; current handoff |
-| NumPy/OpenCV/PyTorch support | **9/9 offline CPU tests PASS, zero skips**, includes torchvision and tiny Transformers; saved exact matrix |
+| Core quick-test result | **230/230 PASS, zero skips on all four production minors and clean installs**; preserved 57-test M0 baseline; URD-031 handoff |
+| NumPy/OpenCV/PyTorch support | **19/19 offline CPU tests PASS, zero skips**, includes complete Urdu ResNet/SGD/AdamW/vision/BERT/graphs; 13,975 names in 24 namespaces audited |
 | Current release blockers | No failing local engineering checks; external publication approval/name ownership/remote CI/community feedback remain |
 | Maintainer-approved canonical grammar | Delegated technical **1.0-local** contract, 35 hard + 2 contextual words and 15 aliases; human naming feedback not fabricated |
 
@@ -920,6 +934,7 @@ Milestones are sequential at the integration level. Agents may research future w
 | URD-028 | P1 | M3 | Urdu ResNet with actual STL-10 training and Urdu graphs | DONE | Integrator + model/data/plot agents | Full-width96px ResNet18, 50epochs RTX5060Ti; epoch44 bestval77%, test6188/8000=77.35%; 22 offline tests + independent raw-label/hash audit PASS; four Urdu PNG/SVG pairs visually reviewed |
 | URD-029 | P1 | M5 | Pip dependency extras and verified local installation | DONE | Integrator | science/ai extras; actual pip AI/science/core installs; 162core tests on4clean wheel minors +315sdist; 11AI tests; CUDA retained; dist/pip-extras evidence; no publication |
 | URD-030 | P1 | M5 | Publish the source as a public GitHub repository | DONE | Integrator | [Optimizer077/urdupy](https://github.com/Optimizer077/urdupy), public visibility and anonymous clone verified; initial main 841399b; cloned 162 core tests and five example pairs PASS; hosted CI in progress |
+| URD-031 | P0 | M3-M5 | Complete Urdu dependency source surface and Urdu commands | DONE | Integrator + three parallel agents | 763 aliases and total identifier/text spellings; six zero-Latin examples; 230 core tests on four clean wheel minors + 3.15 sdist; 19 AI tests; 13,975 names/24 namespaces; installed CUDA autograd PASS; docs/urdu-only-handoff.md |
 
 ### 12.3 Active tasks / ownership
 
@@ -935,6 +950,7 @@ Milestones are sequential at the integration level. Agents may research future w
 | URD-012..017 | language_design (AI role) | 2026-10-15 | Optional compatibility suites, paired science examples, constraints and evidence | Offline real-library integration | DONE / frozen |
 | URD-020..023/026 | platform_research (packaging role) | 2026-10-15 | Metadata/manifest/CI/editor/license/docs, ADR-012 | Local packaging/technical contract; external gates separate | DONE drafts; integration verification |
 | URD-030 | Integrator / main | 2026-10-15 | README.md, AGENTS.md, publication handoff and Git configuration | Public GitHub source repository; preserve language/runtime and existing ignored local artifacts | DONE |
+| URD-031 | Integrator + catalog/examples/CLI agents | 2026-10-15 | Integrator: compiler/runtime/shared docs; agents: separate catalog, CLI/verifier, examples/tests | Complete Urdu source mode, native objects and legacy compatibility | DONE; independently reviewed |
 
 Only one agent should **directly edit the canonical keyword registry at a time**. Coordinate merge timing for importer/translator interfaces. Parallel agents should prefer separate tests/docs or clearly partitioned files.
 
@@ -1080,6 +1096,7 @@ Create accepted ADR files later under `docs/adr/` if useful; until then, record 
 | ADR-012 | Local packaging/stability | ACCEPTED LOCAL CONTRACT | [Local release policy](docs/adr/012-local-release-policy.md); alpha package, 1.0-local grammar, external gates distinct |
 | ADR-013 | Runtime/imports/state | ACCEPTED LOCAL CONTRACT | [Owned execution and Python priority](docs/adr/013-runtime-imports.md); runtime/import/CLI/REPL regressions and installed checks |
 | ADR-014 | Pip dependency extras | ACCEPTED LOCAL CONTRACT | [Standard optional dependencies](docs/adr/014-pip-extras.md); science/ai automatic pip resolution, zero-core dependencies and explicit device selection |
+| ADR-015 | Complete Urdu library spellings | ACCEPTED LOCAL CONTRACT | [Explicit source mode](docs/adr/015-complete-urdu-surface.md); native objects, curated aliases and exact total fallback |
 
 ### ADR template
 
@@ -1328,6 +1345,43 @@ UrduPy is successful when a learner can write understandable Urdu code **and** a
 ---
 
 ## 21. Session Updates (append newest entries here)
+
+- **2026-10-15 — URD-031 GitHub publication authorized.** Maintainer explicitly
+  requests `push` after the complete Urdu surface implementation. Fresh baseline:
+  230 core tests and five paired examples PASS on Python3.13.13; fetched
+  origin/main equals local main at eed8d2a with no divergence. Reviewed 36 changed
+  source/test/documentation files, 407,825 bytes before this log entry; no file
+  exceeds1MB and credential/private-key token-pattern scan has no findings.
+  Publication scope is this reviewed local update to Optimizer077/urdupy main.
+  Environments, datasets, checkpoints, run/build output and dist remain ignored.
+  This subsequent instruction authorizes the GitHub update; earlier URD-031
+  no-public-upload statements describe the implementation phase. Remote commit
+  identity and clean local status are verified after pushing.
+
+- **2026-10-15 — URD-031 complete Urdu dependency surface.** Maintainer expands
+  the old library-name non-goal and requests parallel agents. Fresh baseline:
+  clean eed8d2a, 162 core tests + five pairs PASS, Python3.13.13 WindowsAMD64.
+  Three agents owned catalog, CLI/verifier and examples/AI tests; integrator
+  implemented explicit `# اردوپائی: مکمل` span lowering and runtime/import/REPL
+  integration. ADR-015 records reserved spellings and legacy compatibility.
+  763 curated entries plus exact Urdu-digit spellings reach all other identifiers
+  and arbitrary strings. Native objects/gradients/protocols remain native.
+  Six zero-Latin sources run NumPy, vision, SGD/AdamW/checkpoints, offline BERT,
+  full ResNet18 and Urdu graph; all six actual main executions PASS. Current
+  core230 tests PASS on clean wheel installs on3.12.13/3.13.13/3.14.6/3.15.0
+  and separate clean3.15sdist build/install, no optional libraries, both consoles.
+  Optional suite19/19 PASS; namespace audit13,975 names/24namespaces PASS.
+  Independent15-test review repaired incompleteconsoleimports, escapedUrdukeyword
+  exports and relativeencodedimports. Four README/guide snippets execute.
+  Actual synthetic AdamW120-step loss3.77983999 ->0.00000151653; Urdu graph
+  visually inspected by agent/integrator. Local core/GPU venvs pip-upgraded;
+  outsidecheckout installed CUDA autograd PASS, torch2.14.1+cu130 retained.
+  Final artifacts/checksums/reports: dist/urdu-only; handoff documents exact
+  scope and fallback limitations. This maps source spellings, not external prose
+  or native repr/messages. Old STL10 results remain unchanged. No public upload,
+  new dataset or model-weight download; no observed regressions. Rollback removes
+  additive mode/catalog/console/examples only. Final docs are included in rebuilt
+  artifacts and verified again before delivery.
 
 > **Agent instruction:** Append concise verified session summaries beneath this marker after each meaningful change. If this file becomes too large, propose an ADR to move historical entries to `docs/project-log.md` while preserving a short index here. Do not silently remove past decisions, completed task evidence, or known failures.
 

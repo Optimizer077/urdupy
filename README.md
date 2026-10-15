@@ -4,7 +4,7 @@
 
 <p align="center">
   <img alt="CPython 3.12–3.15" src="https://img.shields.io/badge/CPython-3.12%E2%80%933.15-0b6e4f?logo=python&logoColor=white">
-  <img alt="162 core tests passing" src="https://img.shields.io/badge/core%20tests-162%20passing-0e7490">
+  <img alt="230 core tests passing" src="https://img.shields.io/badge/core%20tests-230%20passing-0e7490">
   <img alt="Zero runtime dependencies" src="https://img.shields.io/badge/core%20dependencies-0-0b6e4f">
   <img alt="PyTorch, NumPy, OpenCV" src="https://img.shields.io/badge/works%20with-PyTorch%20·%20NumPy%20·%20OpenCV-ee4c2c">
   <img alt="Status: alpha" src="https://img.shields.io/badge/status-0.1.0a1%20alpha-f59e0b">
@@ -25,6 +25,53 @@
 names, then runs them on the **real CPython interpreter**. Your code uses the
 same objects, exceptions and installed packages as any Python program: the
 standard library, NumPy, OpenCV, PyTorch, Transformers, or anything from pip.
+
+## مکمل اردو میں کتب خانے
+
+اب ماڈیول، فنکشن، دلائل، ماڈل کے خاص طریقے اور آلے کے نام بھی اردو میں لکھیں۔
+فائل کی پہلی سطر سے مکمل اردو انداز منتخب کریں:
+
+```python
+# اردوپائی: مکمل
+درآمد نمپی
+درآمد ٹارچ
+
+اعداد = نمپی.سرنی([1, 2, 3], قسم_اعداد=نمپی.اعشاری۳۲)
+دکھاؤ(اعداد.اوسط())
+
+کلاس چھوٹا_ماڈل(ٹارچ.عصبی.جزو):
+    فنکشن آغاز(خود):
+        بالائی().آغاز()
+        خود.تہہ = ٹارچ.عصبی.خطی(3, 1)
+
+    فنکشن آگے(خود, آمد):
+        واپس خود.تہہ(آمد)
+
+ماڈل = چھوٹا_ماڈل().منتقل(مرکزی_آلہ)
+دکھاؤ(فہرست(ماڈل(ٹارچ.اتفاقی_معمول(2, 3)).شکل))
+```
+
+The native arrays, tensors, autograd and optimizers remain those of the installed
+libraries. **763 curated Urdu spellings** cover common APIs; every additional
+identifier or text value has an exact generated Urdu spelling. This gives the
+full dependency surface a representation without Latin letters in source;
+generated fallback spellings are codepoint names, not human translations.
+
+After installing this checkout, discover names and run an example in Urdu:
+
+```powershell
+اردوپائی نام ٹارچ.عصبی
+اردوپائی نام نمپی
+اردوپائی چلاؤ examples/مکمل_اردو/عددی_حساب.urdu
+اردوپائی نصب مصنوعی_ذہانت
+```
+
+Read the **[complete Urdu guide](docs/complete-urdu.md)** and the
+**[six Urdu-only examples](examples/مکمل_اردو/README.md)**, including ResNet-18,
+two optimizers, save/reload, vision, offline language models and an Urdu graph.
+Existing files retain their behavior unless they opt into complete Urdu mode.
+Dependency messages, returned text and native error types retain their original
+values; this feature translates source spellings, not arbitrary third-party prose.
 
 <table>
 <tr>
@@ -64,7 +111,8 @@ for n in range(1, 6):
 </table>
 
 Both print the same five lines. The grammar is Python's: indentation, `:`,
-brackets, operators and expressions are unchanged. Only the keywords are Urdu.
+brackets, operators and expressions are unchanged. The original mode translates
+keywords; the opt-in complete mode also translates dependency spellings.
 
 ## ✨ Highlights
 
@@ -168,6 +216,9 @@ provisional; changes go through the [naming workshop](docs/naming-proposals.md).
 
 ## 🤖 Use any Python library
 
+The complete Urdu mode above covers library spellings too. The following is the
+original interoperability mode, useful for following upstream Python examples.
+
 No setup or binding layer is needed. Install the library into the **same
 environment** as UrduPy and import it with its real name:
 
@@ -203,7 +254,7 @@ rules and a troubleshooting table: **[Using Python libraries](docs/python-librar
 |---|---|---|---|
 | [XOR neural network](examples/science/README.md#train-a-neural-network) (337 params, 600 epochs) | UrduPy + PyTorch | CPU | **99.71%** held-out accuracy (1,021/1,024) |
 | [ResNet-18 on STL-10](experiments/ریسنیٹ_ایس_ٹی_ایل۱۰/README.md) (11.2M params, 50 epochs, from scratch) | Urdu classes, Urdu file names, Urdu plots | RTX 5060 Ti | **77.35%** official test accuracy (6,188/8,000) |
-| [Integration suite](docs/ai-compatibility.md): NumPy, OpenCV, Pillow, torch, torchvision, Transformers | Paired `.urdu`/`.py` | CPU | **11/11 pass**, zero skips |
+| [Integration suite](docs/ai-compatibility.md): NumPy, OpenCV, Pillow, torch, torchvision, Transformers | Paired and complete Urdu programs | CPU | **19/19 pass**, zero skips |
 
 ## 🔌 Embed in Python
 
@@ -233,7 +284,7 @@ same-named `.urdu` files. Details: [ADR-013](docs/adr/013-runtime-imports.md).
 ## 🧪 Verify it yourself
 
 ```powershell
-python -X utf8 -m unittest discover -s tests -v     # 162 core tests
+python -X utf8 -m unittest discover -s tests -v     # 230 core tests
 python examples/verify_examples.py                  # Urdu vs Python output pairs
 python tools/run_compatibility.py --require-all     # optional AI suite (needs .[ai])
 ```

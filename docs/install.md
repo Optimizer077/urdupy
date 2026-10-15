@@ -1,5 +1,10 @@
 # Install the local UrduPy prerelease
 
+This checkout also installs the Unicode console command **`اردوپائی`**.
+After the initial install, use `اردوپائی --مدد`, `اردوپائی نام --کتب_خانے`,
+or `اردوپائی نصب مصنوعی_ذہانت` (explicit pip installation from the local source
+checkout). No import installs dependencies. [Complete Urdu usage](complete-urdu.md).
+
 The local distribution is **`urdupy-design-lab`**; its import package and command
 are both **`urdupy`**. Install from this checkout or its built artifacts. No PyPI
 publication, name reservation or registry ownership is claimed. The dated

@@ -18,17 +18,24 @@ _SESSIONS = count(1)
 
 
 class UrduConsole(code.InteractiveConsole):
-    def __init__(self, locals=None):
+    def __init__(self, locals=None, *, complete=False):
         if locals is None:
             locals = ModuleType("__console__").__dict__
         locals.setdefault("__name__", "__console__")
-        locals["__builtins__"] = make_builtins(locals.get("__builtins__"))
+        locals["__builtins__"] = make_builtins(locals.get("__builtins__"), complete=complete)
         super().__init__(locals)
         self._sequence = 1
         self._session = next(_SESSIONS)
         self._sources = {}
+        self.complete = complete
 
     def runsource(self, source, filename=None, symbol="single"):
+        from .urdu_surface import DIRECTIVE, enabled
+        if enabled(source):
+            self.complete = True
+            self.locals["__builtins__"] = make_builtins(self.locals["__builtins__"], complete=True)
+        elif self.complete:
+            source = DIRECTIVE + "\n" + source
         if filename is None or filename == self.filename:
             filename = f"<urdupy-repl-{self._session}-{self._sequence}>"
         try:

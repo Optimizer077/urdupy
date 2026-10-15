@@ -6,11 +6,13 @@ Repeat --python to validate additional installed CPython interpreters.
 """
 
 import argparse
+from configparser import ConfigParser
 from datetime import datetime, timezone
 import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import subprocess
 import tarfile
 from tempfile import TemporaryDirectory
@@ -39,7 +41,14 @@ def inspect_artifacts(wheel, sdist):
         assert "urdupy/compiler.py" in names
         assert "urdupy/runtime.py" in names
         assert "urdupy/importer.py" in names
+        assert "urdupy/urdu_surface.py" in names
+        assert "urdupy/urdu_catalog.py" in names
         assert all(name.startswith("urdupy/") or ".dist-info/" in name for name in names)
+        entries = ConfigParser(interpolation=None)
+        entries.read_string(archive.read(next(name for name in names
+                                              if name.endswith(".dist-info/entry_points.txt"))).decode("utf-8"))
+        assert entries["console_scripts"]["urdupy"] == "urdupy.cli:main"
+        assert entries["console_scripts"]["اردوپائی"] == "urdupy.cli:urdu_main"
         metadata = archive.read(next(name for name in names if name.endswith(".dist-info/METADATA"))).decode()
         message = Parser().parsestr(metadata)
         requirements = [Requirement(value) for value in message.get_all("Requires-Dist", [])]
@@ -61,8 +70,12 @@ def inspect_artifacts(wheel, sdist):
         paths = [Path(member.name).parts for member in archive.getmembers()]
         relative = {"/".join(parts[1:]) for parts in paths if len(parts) > 1}
         for required in ("pyproject.toml", "LICENSE", "urdupy/compiler.py", "urdupy/runtime.py",
-                         "urdupy/cli.py", "tests/test_runtime.py", "examples/01_conditions.urdu",
-                         "tools/verify_release.py", "docs/language-reference.md"):
+                         "urdupy/cli.py", "urdupy/urdu_surface.py", "urdupy/urdu_catalog.py",
+                         "tests/test_runtime.py", "tests/test_urdu_cli.py", "tests/test_urdu_catalog.py",
+                         "tests/test_urdu_surface.py", "examples/01_conditions.urdu",
+                         "examples/مکمل_اردو/عددی_حساب.urdu", "examples/مکمل_اردو/عصبی_تربیت.urdu",
+                         "tools/verify_release.py", "docs/language-reference.md",
+                         "docs/adr/015-complete-urdu-surface.md"):
             assert required in relative, f"sdist is missing {required}"
         assert any(name.startswith("editor/") and name.endswith(".json") for name in relative)
         assert not any(part.startswith(".venv") or part in {".runtimes", "__pycache__", ".verification"}
@@ -78,6 +91,7 @@ def verify_install(interpreter, artifact, workspace, *, full_suite):
         scripts = environment / ("Scripts" if os.name == "nt" else "bin")
         python = scripts / ("python.exe" if os.name == "nt" else "python")
         console = scripts / ("urdupy.exe" if os.name == "nt" else "urdupy")
+        urdu_console = scripts / ("اردوپائی.exe" if os.name == "nt" else "اردوپائی")
         run([str(python), "-m", "pip", "install", "--disable-pip-version-check",
              "--index-url", "https://pypi.org/simple", "--no-deps", str(artifact)], cwd=directory)
         output, _ = run([str(python), "-I", "-c",
@@ -100,12 +114,49 @@ def verify_install(interpreter, artifact, workspace, *, full_suite):
         run([str(console), "translate", str(script), "-o", str(directory / "translated.py")], cwd=directory)
         output, _ = run([str(console), "repl"], cwd=directory, input="دکھاؤ(6 * 7)\n")
         assert "42" in output
+        localized_help, _ = run([str(urdu_console), "--مدد"], cwd=directory)
+        assert "چلاؤ" in localized_help and "جانچو" in localized_help
+        assert not re.search(r"[A-Za-z]", localized_help), localized_help
+        localized_source = (
+            "# اردوپائی: مکمل\n"
+            "درآمد ریاضی\n"
+            "درآمد جیسن\n"
+            "کلاس جمعکار:\n"
+            "    فنکشن آغاز(خود, قدر=2):\n"
+            "        خود.قدر = قدر\n"
+            "    فنکشن پکار(خود, عدد):\n"
+            "        واپس خود.قدر + عدد\n"
+            "دکھاؤ(جمعکار(قدر=5)(ریاضی.مربع_جذر(9)))\n"
+            "دکھاؤ(جیسن.جیسن_متن({'سلام': 'اردو'}, انگریزی_رمز_لازم=جھوٹ))\n"
+            "دکھاؤ(اصل_متن('متن_۹۹_۱۱۲_۱۱۷'))\n"
+        )
+        assert not re.search(r"[A-Za-z]", localized_source)
+        localized_script = directory / "مکمل_اردو.urdu"
+        localized_script.write_text(localized_source, encoding="utf-8")
+        output, _ = run([str(urdu_console), "چلاؤ", str(localized_script)], cwd=directory)
+        assert output == '8.0\n{"سلام": "اردو"}\ncpu\n', output
+        check_only = directory / "صرف_جانچ.urdu"
+        check_only.write_text("# اردوپائی: مکمل\nدرآمد نمپی\nدرآمد ٹارچ\n"
+                              "اٹھاؤ عملی_خطا('یہ پروگرام نہیں چلنا چاہیے')\n", encoding="utf-8")
+        output, _ = run([str(urdu_console), "جانچو", str(localized_script), str(check_only)], cwd=directory)
+        assert output.count("درست ") == 2, output
+        output, _ = run([str(urdu_console), "نام", "ریاضی"], cwd=directory)
+        assert "مربع_جذر" in output
+        assert not re.search(r"[A-Za-z]", output), output
+        output, _ = run([str(urdu_console), "نام", "--کتب_خانے"], cwd=directory)
+        assert "نظام" in output
+        assert not re.search(r"[A-Za-z]", output), output
+        output, _ = run([str(urdu_console), "بیٹھک"], cwd=directory,
+                        input="درآمد ریاضی\nدکھاؤ(ریاضی.مربع_جذر(49))\n")
+        assert "7.0" in output, output
         if full_suite:
             output, error = run([str(python), "-I", "-X", "utf8", "-m", "unittest",
                                  "discover", "-s", str(ROOT / "tests"), "-q"])
             info["suite_summary"] = (output + error).strip()
         info.update(artifact=artifact.name, status="PASS", isolated_import=True,
-                    optional_libraries_absent=True, installed_console_commands=["run", "check", "translate", "repl"])
+                    optional_libraries_absent=True, installed_console_commands=["run", "check", "translate", "repl"],
+                    installed_urdu_console_commands=["--مدد", "جانچو", "چلاؤ", "نام", "نام --کتب_خانے", "بیٹھک"],
+                    complete_urdu_installed_execution=True, complete_urdu_check_does_not_import=True)
         return info
 
 

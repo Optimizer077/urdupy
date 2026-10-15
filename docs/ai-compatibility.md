@@ -1,5 +1,13 @@
 # Scientific and AI compatibility
 
+URD-031 adds eight complete-Urdu tests: the current full optional suite is
+**19/19 PASS, zero skips** in the recorded CPU environment. It covers real
+NumPy/vision/offline BERT, exact SGD/AdamW training/checkpoints, native ResNet-18
+and Urdu graph export. Name coverage separately audits **13,975 names across
+24 namespaces**, not all mathematical operations. See the
+[complete Urdu handoff](urdu-only-handoff.md) and local reports under
+`dist/urdu-only/`. The original evidence below remains historical.
+
 Date: 2026-10-15. Tasks URD-012..017 and URD-027. Tests use ordinary library names, real
 CPython objects, synthetic data and CPU execution. Compatibility claims apply
 only to recorded operations and environments, not every API in a framework.
